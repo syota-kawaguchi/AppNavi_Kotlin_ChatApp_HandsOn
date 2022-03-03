@@ -9,6 +9,7 @@
 
 ![session1-1-rename-mainactivity](https://user-images.githubusercontent.com/57338033/156504019-db0913b0-2174-4c5d-adb2-9742651fc47e.png)
 
+
 では、先程変更した`activity_register.xml`を開きましょう
 
 ![session1-1-helloworld](https://user-images.githubusercontent.com/57338033/156507290-de907a28-ed9f-444c-b81f-84324778ab59.png)
