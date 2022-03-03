@@ -42,10 +42,9 @@
  - Planeテキストの大きさを以下のように設定します。
  - 大きさは先程配置したPlaneTextを選択した状態で`Attributes`の`layout_width`, `layout_height`から変更できます。
  - 以下のように設定します。
- ```
- lauout_width : 0dp
- layout_height : 50dp
- ``` 
+   - `lauout_width` : `0dp`
+   - `layout_height`：`50dp`
+
 ![session1-1-set-width-height](https://user-images.githubusercontent.com/57338033/156543586-dab474a8-104e-4bb0-94d3-b8f6b85a0c7b.png)
 
 次に`Constraint`を設定します。
@@ -56,16 +55,14 @@
 
 画面いっぱいに広がって見ずらいので余白を設定します。余白はmerginで設定します。
 - `Attributes`の`Constraint Widget`から以下のようにmerginを設定します。
-```
-mergin left : 32dp
-mergin right : 32dp
-mergin top : 32dp
-```
+  - `margin left`：`32dp`
+  - `margin right`：`32dp`
+  - `margin top`：`32dp`
 
 Hintを設定します。Hintは何も入力されていないときに表示されるメッセージです。このフォームにはどういったものが入力されるべきであるかを示します。
 - `Attributes`の`Text`に「Name」と入力されていると思います。これを消します。
 - `Attributes`の`Hint`に「ユーザー名」と入力しましょう
-- すると画面のPlaneTextに「ユーザー名」と表示されると思います。
+すると画面のPlaneTextに「ユーザー名」と表示されると思います。
 
 idを設定しましょう。これは後にコードとUIを関連付けるために使います。
 - idを「username_edittext_register」とします。<br>
@@ -77,40 +74,28 @@ idを設定しましょう。これは後にコードとUIを関連付けるた�
 次にメールアドレスのフォーム、パスワードのフォームを設定していきます。
 - `Attributes`から`Email`、`Password`を画面にドラッグ＆ドロップ
 - `Email`を以下のように設定しましょう
-```
-layout_width : 0dp
-layout_height : 50dp
-
-constrain left → 画面左端
-constrain right →　画面右端
-constrain Top → Username(先程のPlaneText)の下
-
-mergin left : 32dp
-mergin right : 32dp
-mergin top : 16dp
-
-Textを消し、Hintに「メールアドレス」と入力
-
-idを「email_edittext_register」に変更
-```
-
+  - `layout_width`：`0dp`
+  - `layout_height`：`50dp`
+  - constrain left → 画面左端
+  - constrain right →　画面右端
+  - constrain Top → Username(先程のPlaneText)の下
+  - `margin left`：`32dp`
+  - `margin right`：`32dp`
+  - `margin top`：`16dp`
+  - Textを消し、Hintに「メールアドレス」と入力
+  - idを「email_edittext_register」に変更
 - 最後に`Password`を以下のように設定しましょう
-```
-layout_width : 0dp
-layout_height : 50dp
+  - `layout_width`：`0dp`
+  - `layout_height`：`50dp`
+  - constrain left → 画面左端
+  - constrain right →　画面右端
+  - constrain Top → Emailの下
+  - `margin left`：`32dp`
+  - `margin right`：`32dp`
+  - `margin top`：`16dp`
+  - Textを消し、Hintに「パスワード」と入力
+  - idを「password_edittext_register」に変更
 
-constrain left → 画面左端
-constrain right →　画面右端
-constrain Top → Emailの下
-
-mergin left : 32dp
-mergin right : 32dp
-mergin top : 16dp
-
-Textを消し、Hintに「パスワード」と入力
-
-idを「password_edittext_register」に変更
-```
 以下のような画面になっていればOKです。
 
 ![session1-1-result](https://user-images.githubusercontent.com/57338033/156562495-dbf88cce-1250-4cbc-8fd1-0210ae8f232c.png)
