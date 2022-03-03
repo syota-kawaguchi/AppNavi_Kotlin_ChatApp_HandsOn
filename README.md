@@ -1,13 +1,20 @@
 # アプリナビ Kotlin HandsOn
 
 ## 1.1 入力フォームを作成する
-これからユーザー登録画面を作成していきます。<br>
-今後わかりやすいようにするため、まずはファイル名を変更します。<br>
-- `MainActivity`上にカーソルをのせ、右クリックし`Refactor`→`Rename`を選択します。<br>
+
+これからユーザー登録画面を作成していきます。
+
+## ファイル名の変更
+
+今後わかりやすいようにするため、まずはファイル名を変更します。
+
+- `MainActivity`上にカーソルをのせ、右クリックし`Refactor`→`Rename`を選択します。
 - `MainActivity`を`RegisterActivity`に変更し`Refactor`をクリックしましょう
 - `res/layout/activity_main.xml`も同様に`activity_main`から`activity_register`に変更しましょう
 
 ![session1-1-rename-mainactivity](https://user-images.githubusercontent.com/57338033/156504019-db0913b0-2174-4c5d-adb2-9742651fc47e.png)
+
+## UI制作画面の説明
 
 では、先程変更した`activity_register.xml`を開きましょう
 
@@ -24,6 +31,8 @@
   - Splitモード：CodeモードとDesignモードを両方表示するモード
  - Attributes <br>
  選択したUIパーツの詳細を設定する。
+
+## UI制作
 
 これからユーザー名・メールアドレス・パスワードの入力フォームを配置していきます。
  - PaletteからPlaneTextを画面にドラッグ＆ドロップします。
