@@ -1,79 +1,162 @@
 # アプリナビ Kotlin HandsOn
 
-## 1.2　ボタン・画像を配置する
+## 1.3　UIの形や色を変更する
 
-ユーザー登録画面にボタンやイメージビューを配置していきます。
+現状のUIと目標のUIを比較します。左：現状、右：目標<br>
 
-## UI制作
+![session1-3-compare-init-result](https://user-images.githubusercontent.com/57338033/156861276-a67d6b0c-1919-469e-9796-50135cffb4a0.png)
 
-まずはボタンを配置します(以下このボタンを`RegisterButton`と呼びます`)。
-- Paletteから`Button`をドラッグ＆ドロップします。
-- 以下のように設定します。
-  - Constraint left : Passwordの左
-  - Constraint right : Passwordの右
-  - Constraint Top : Passwordの上
-  - `layout_width` : `0dp`
-  - `layout_height` : `50dp`
-  - `mergin Top` : `12dp`
-  - `Text`を「登録」に変更
-  - `id`を`register_button_register`に変更
+フォームやボタンの形・全体の色が違いますね、今回は色や形を設定していきます。<br>
 
-下図のようになっていれば大丈夫です。
+## Statusbarの変更
+まずは`Statusbar`・`ActionBar`の色を変更します。<br>
+ちなみに`StatusBar`は`handsOnChatApp`と表示されている紫のバーで、`ActionBar`は充電や時間が記載されている少し濃い紫の部分のことを言います。<br>
 
-![session1-2-done-put-register-button](https://user-images.githubusercontent.com/57338033/156706694-7c9829c6-2409-4758-b740-ddb86d141052.png)
+![session1-3-explain-bar](https://user-images.githubusercontent.com/57338033/156746591-0c2ada74-ccf8-468b-ada1-696f42e43a34.png)
 
-次にテキストを配置します。このテキストはすでにアカウントを作っている人をログイン画面に誘導する役割をもたせます。
-- Paletteから`TextView`をドラッグ＆ドロップします。
-- 以下のように設定します。
-  - Constraint left : RegisterButtonの左
-  - Constraint right : RegisterButtonの右
-  - Constraint Top : RegisterButtonの下
-  - `mergin Top` : `16dp`
-  - `Text`を「すでにアカウントをお持ちですか？」に変更
-  - `id`を`have_account_text_register`に変更
+- `res/values/colors.xml`を開きましょう
+- `colors.xml`では色を定義することができます。自分で定義することで使い回しやすくなります。
+- 以下の行を`colors.xml`の`<resources></resources>`内に追加しましょう
 
-下図のようになっていれば大丈夫です。
+```xml
+  <color name="base_color_blue">#0A84FF</color>
+```
 
-![session1-2-done-already_have_an_account](https://user-images.githubusercontent.com/57338033/156707474-9d2ca47b-342d-4657-a700-cd6eb27bbc1e.png)
+- `base_color_blue`はこの色の名前でありリソースIDです。`name`で指定した文字列が`color`要素の名前とリソースIDの役割を持ちます。
 
-続いてボタンと画像を配置します。これにユーザー登録の際、端末に保存されている画像から選んでアイコンに設定する役割をもたせます。<br>
-まずは端末に保存されている画像にアクセスするためのボタンを配置します。
-- Paletteから`Button`をドラッグ＆ドロップします(以下SelectPhotoButtonと呼びます)。
-- 以下のように設定します。
-  - Constraint left : 画面左端
-  - Constraint right : 画面右端
-  - Constraint Top : 画面上端
-  - `layout_width` : `150dp`
-  - `layout_height` : `150dp`
-  - `mergin Top` : `32dp`
-  - `Text`を「写真を選択」に変更
-  - `id`を`select_photo_button_register`に変更
-- ここまですると入力フォームと先ほど配置したボタンがかぶってしまっています。これを修正します。
+![session1-3-edit-color-xml](https://user-images.githubusercontent.com/57338033/156861294-caa3091b-5833-4747-8547-8423ead13812.png)
 
-![session1-2-Overlap](https://user-images.githubusercontent.com/57338033/156711816-e63dccad-754d-4614-9627-dd059cfe6816.png)
+- 次に`res/values/themes/themes.xml`を開きましょう。
+- `@color/purple_500`を`@color/base_color_blue`に変更しましょう。
+- `?attr/colorPrimryVariant`を`@color/base_color_blue`に変更しましょう。
+- 以下に編集後の`theme.xml`を載せておきます
 
-- `id`が`username_edittext_register`である`PlaneText`の設定を以下のように変更します。
-  - Constraint Top : SelectPhotoButtonの下
-  - `merginTop` : '32dp'
+```xml
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.HandsOnChatApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/base_color_blue</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">@color/base_color_blue</item>
+        <!-- Customize your theme here. -->
+    </style>
+</resources>
+```
+- 編集後の画面は以下の通りです。
 
-次に画像を配置します。これに選択した画像を表示する役割をもたせます。
-- Paletteから`image View`をドラッグ＆ドロップします。Avatorの選択画面が出ると思いますが、何でもいいです。
-- 以下のように設定します。
-  - Constraint left : SelectPhotoButtonの左
-  - Constraint right : SelectPhoroButtonの右
-  - Constraint Top : SelectPhotoButtonの上
-  - `layout_width` : `150dp`
-  - `layout_height` : `150dp`
-  - `id`を`circle_viewA_registerに変更`
-- 下図のようになっていれば大丈夫です。 
+![session1-3-changed_primary_color](https://user-images.githubusercontent.com/57338033/156863695-bdc3c365-e783-4626-8e4a-26c46e485ff7.png)
 
-![session1-2-result](https://user-images.githubusercontent.com/57338033/156715315-7edaa0b2-2580-4527-918a-32a5f7babc3f.png)
+## 入力Formの編集
+- まずは`res/drawable`を右クリックし、`New`→`Drawable Resource File`を選択します。
+- `edittext_frame.xml`という名前でxmlファイルを作成します。
+- 以下の内容を作成したファイルに記入しましょう。
 
-1.2はここまでです。とりあえずユーザー登録画面のUIの配置は完了です。次は色やフォームの形の設定を行っていきます。
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <stroke
+                android:color="@color/base_color_blue"
+                android:width="2dp"
+                />
+            <corners android:radius="25dp"/>
+            <solid android:color="@color/white"/>
+        </shape>
+    </item>
+</selector> 
+```
+
+- 続いて`activity_register.xml`を開きましょう
+- `Attributes`からユーザー名、メールアドレス、パスワードそれぞれの`background`に`@drawable/edittext_frame`を入力します。
+- これでFormの見た目を変えることができました。ただ、このままだとヒントが左によりすぎて少しかなり見にくいです。そこでPaddingを設定します。
+- `Attributes`からユーザー名、メールアドレス、パスワードそれぞれの`padding left`を`16dp`にします。
+- 以下にここまでの画面を表示します
+
+![session1-3-apply-background-from](https://user-images.githubusercontent.com/57338033/156864257-6ae8f3ae-8392-4049-a3cb-af679fcd38c7.png)
+
+## 課題
+- 同様の手順で`register_button`、`select_photo_button`という名前でxmlファイルを作成し、`register_button.xml`は`RegisterButton`に、`select_photo_button.xml`は`SelectPhotoButton`の`background`に適用しましょう。
+- 以下に`register_button.xml`、`select_photo_button.xml`に記載する内容を載せます。
+
+- `register_button.xml`
+```
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="25dp"/>
+        </shape>
+    </item>
+</selector> 
+```
+
+- `select_photo_button.xml`
+```
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="75dp"/>
+        </shape>
+    </item>
+</selector> 
+```
+
+- 以下のような画面になっていればOKです。`RegisterButton`と`SelectPhotoButton`が丸くなっていれば正解です。
+
+![session1-3-apply-background-select-photo-button](https://user-images.githubusercontent.com/57338033/156864775-6e423c98-09cd-4a82-a2f3-dacb0a4afd8b.png)
+
+# 画像を丸くする
+- 現状画像のみが丸くなっておりません。
+- 先程のようにxmlファイルで画像を丸くするようにしても画像自体は丸くなりますが、端末に保存されている画像を表示したとき四角い画像になってしまいます。
+- そこで[CircleImageView](https://github.com/hdodenhof/CircleImageView)というライブラリを使います。
+- まずは`build.gradle(Module)`を開きます。
+- 以下の緑のハイライトを`dependencies`内に追加します。
+
+```diff
+dependencies {
+    ...
++    implementation 'de.hdodenhof:circleimageview:3.1.0'
+}
+
+```
+
+- 追加できましたら`Sync Now`を押しましょう。
+- 続いて`activity_register`を開きましょう
+- ViewModeをCodeモードに変更します。
+- `ImageView`を`de.hdodenhof.circleimageview.CircleImageView`に書き換えましょう
+
+```diff
+- <ImageView
++ <de.hdodenhof.circleimageview.CircleImageView
+      android:id="@+id/circle_view_register"
+      略
+```
+
+- これで画像を丸くする対応は完了です！
+
+- 現状のUIは以下のとおりです。
+
+![session1-3-result](https://user-images.githubusercontent.com/57338033/156867540-34b3b50a-e29d-4523-9908-45d7da2e2259.png)
+
+次からコードを記述していきます！
+
+## Diff
 
 <details>
 <summary>前回との差分</summary>
-<a href="https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/cdfa306e3c6219f4b983fd9d7addf2d60a545926">diff</a>
+    DiffではActionBarが紫に指定されておりませんが、気にしないでください<br>
+    <a href="https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/8497e7c412a7383d3bc502e9866a00a3c34e504c">diff</a>
 </details>
+
+
 
 ## Next
