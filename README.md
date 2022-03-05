@@ -71,9 +71,13 @@
 
 1.2はここまでです。とりあえずユーザー登録画面のUIの配置は完了です。次は色やフォームの形の設定を行っていきます。
 
+## Diff
+
 <details>
 <summary>前回との差分</summary>
 <a href="https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/cdfa306e3c6219f4b983fd9d7addf2d60a545926">diff</a>
 </details>
 
 ## Next
+
+[UIの形や色を変更する](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session1.3)
