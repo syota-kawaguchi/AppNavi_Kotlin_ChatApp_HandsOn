@@ -1,162 +1,354 @@
 # アプリナビ Kotlin HandsOn
 
-## 1.3　UIの形や色を変更する
+## 1.4　処理を記述する
 
-現状のUIと目標のUIを比較します。左：現状、右：目標<br>
+今回は作成したUIの処理を記述していきます。
 
-![session1-3-compare-init-result](https://user-images.githubusercontent.com/57338033/156861276-a67d6b0c-1919-469e-9796-50135cffb4a0.png)
+## View Bindingを設定する。
+コードからUIにアクセスする方法として`findViewById`があります。しかしこれには以下のデメリットがあります。
 
-フォームやボタンの形・全体の色が違いますね、今回は色や形を設定していきます。<br>
+- 存在しないIDを参照できる。
+- キャッシュされない。呼び出すたびにViewを探索する。
 
-## Statusbarの変更
-まずは`Statusbar`・`ActionBar`の色を変更します。<br>
-ちなみに`StatusBar`は`handsOnChatApp`と表示されている紫のバーで、`ActionBar`は充電や時間が記載されている少し濃い紫の部分のことを言います。<br>
+そこで`View Binding`を使います。`view Binding`は各レイアウトファイルごとにバインディングクラスが生成され、バインディングクラスのインスタンスは対象のレイアウト内でIDを持つ全てのビューへの直接参照を保持しています。ですので、存在しないIDを参照することや、呼び出すたびにいちいち探索する必要がなくなります。
 
-![session1-3-explain-bar](https://user-images.githubusercontent.com/57338033/156746591-0c2ada74-ccf8-468b-ada1-696f42e43a34.png)
+- build.gradle(Module)を開きます。
+- 以下の内容を`android`の`{}`の内部に追加します。
 
-- `res/values/colors.xml`を開きましょう
-- `colors.xml`では色を定義することができます。自分で定義することで使い回しやすくなります。
-- 以下の行を`colors.xml`の`<resources></resources>`内に追加しましょう
-
-```xml
-  <color name="base_color_blue">#0A84FF</color>
+```gradle
+  viewBinding {
+      enabled = true
+  }
 ```
 
-- `base_color_blue`はこの色の名前でありリソースIDです。`name`で指定した文字列が`color`要素の名前とリソースIDの役割を持ちます。
+- 追加したら`Sync Now`をクリックしましょう
 
-![session1-3-edit-color-xml](https://user-images.githubusercontent.com/57338033/156861294-caa3091b-5833-4747-8547-8423ead13812.png)
+## 登録ボタンが押されたときの処理を追加する
 
-- 次に`res/values/themes/themes.xml`を開きましょう。
-- `@color/purple_500`を`@color/base_color_blue`に変更しましょう。
-- `?attr/colorPrimryVariant`を`@color/base_color_blue`に変更しましょう。
-- 以下に編集後の`theme.xml`を載せておきます
-
-```xml
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.HandsOnChatApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/base_color_blue</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">@color/base_color_blue</item>
-        <!-- Customize your theme here. -->
-    </style>
-</resources>
-```
-- 編集後の画面は以下の通りです。
-
-![session1-3-changed_primary_color](https://user-images.githubusercontent.com/57338033/156863695-bdc3c365-e783-4626-8e4a-26c46e485ff7.png)
-
-## 入力Formの編集
-- まずは`res/drawable`を右クリックし、`New`→`Drawable Resource File`を選択します。
-- `edittext_frame.xml`という名前でxmlファイルを作成します。
-- 以下の内容を作成したファイルに記入しましょう。
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <stroke
-                android:color="@color/base_color_blue"
-                android:width="2dp"
-                />
-            <corners android:radius="25dp"/>
-            <solid android:color="@color/white"/>
-        </shape>
-    </item>
-</selector> 
-```
-
-- 続いて`activity_register.xml`を開きましょう
-- `Attributes`からユーザー名、メールアドレス、パスワードそれぞれの`background`に`@drawable/edittext_frame`を入力します。
-- これでFormの見た目を変えることができました。ただ、このままだとヒントが左によりすぎて少しかなり見にくいです。そこでPaddingを設定します。
-- `Attributes`からユーザー名、メールアドレス、パスワードそれぞれの`padding left`を`16dp`にします。
-- 以下にここまでの画面を表示します
-
-![session1-3-apply-background-from](https://user-images.githubusercontent.com/57338033/156864257-6ae8f3ae-8392-4049-a3cb-af679fcd38c7.png)
-
-## 課題
-- 同様の手順で`register_button`、`select_photo_button`という名前でxmlファイルを作成し、`register_button.xml`は`RegisterButton`に、`select_photo_button.xml`は`SelectPhotoButton`の`background`に適用しましょう。
-- 以下に`register_button.xml`、`select_photo_button.xml`に記載する内容を載せます。
-
-- `register_button.xml`
-```
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <corners android:radius="25dp"/>
-        </shape>
-    </item>
-</selector> 
-```
-
-- `select_photo_button.xml`
-```
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <corners android:radius="75dp"/>
-        </shape>
-    </item>
-</selector> 
-```
-
-- 以下のような画面になっていればOKです。`RegisterButton`と`SelectPhotoButton`が丸くなっていれば正解です。
-
-![session1-3-apply-background-select-photo-button](https://user-images.githubusercontent.com/57338033/156864775-6e423c98-09cd-4a82-a2f3-dacb0a4afd8b.png)
-
-# 画像を丸くする
-- 現状画像のみが丸くなっておりません。
-- 先程のようにxmlファイルで画像を丸くするようにしても画像自体は丸くなりますが、端末に保存されている画像を表示したとき四角い画像になってしまいます。
-- そこで[CircleImageView](https://github.com/hdodenhof/CircleImageView)というライブラリを使います。
-- まずは`build.gradle(Module)`を開きます。
-- 以下の緑のハイライトを`dependencies`内に追加します。
+- `Sync Now`が完了したら`RegisterActivity`を開き、以下の緑色のハイライトを追加しましょう
+- `import`は`private lateinit ~`を先に記述することで自動で追加してくれます
 
 ```diff
-dependencies {
-    ...
-+    implementation 'de.hdodenhof:circleimageview:3.1.0'
-}
+   package com.example.handsonchatapp
 
+   import androidx.appcompat.app.AppCompatActivity
+   import android.os.Bundle
++  import com.example.handsonchatapp.databinding.ActivityRegisterBinding
+
+  class RegisterActivity : AppCompatActivity() {
++
++     private lateinit var binding : ActivityRegisterBinding
++
+      override fun onCreate(savedInstanceState: Bundle?) {
+          super.onCreate(savedInstanceState)
+-         setContentView(R.layout.activity_register)
+
++         binding = ActivityRegisterBinding.inflate(layoutInflater)
++         val view = binding.root
++         setContentView(view)
+      }
+  }
 ```
 
-- 追加できましたら`Sync Now`を押しましょう。
-- 続いて`activity_register`を開きましょう
-- ViewModeをCodeモードに変更します。
-- `ImageView`を`de.hdodenhof.circleimageview.CircleImageView`に書き換えましょう
+- さっそく処理を追加していきます。まずは、登録ボタンを押したときのイベントを書いていきます。
+- 登録ボタンを押すと入力内容を保存するという処理をするのですが、それは後ほど設定します。
+- 今回は登録ボタンを押すと入力内容をログで出力するという処理を追加します。
 
 ```diff
-- <ImageView
-+ <de.hdodenhof.circleimageview.CircleImageView
-      android:id="@+id/circle_view_register"
-      略
+  import...
+
+  class RegisterActivity : AppCompatActivity() {
+
+      private lateinit var binding : ActivityRegisterBinding
+
++     private val TAG = "RegisterActivity"
+
+      override fun onCreate(savedInstanceState: Bundle?) {
+          super.onCreate(savedInstanceState)
+          setContentView(R.layout.activity_register)
+
+          binding = ActivityRegisterBinding.inflate(layoutInflater)
+          val view = binding.root
+          setContentView(view)
+
++        binding.registerButtonRegister.setOnClickListener {
++          val email = binding.emailEdittextRegister.text.toString();
++          val password = binding.passwordEdittextRegister.text.toString();
++
++          Log.d(TAG, "Email is: ${email}")
++          Log.d(TAG, "password is: ${password}")
++       }
+      }
+  }
 ```
 
-- これで画像を丸くする対応は完了です！
+- もし`Unresolved reference:Log`というエラーメッセージが出力されたときはLogのところにカーソルをあわせ、`Alt`＋`Enter`で`import`しましょう。
+- ここまで完了しましたら一度実行してみましょう。
+- ユーザー名・メールアドレス・パスワードに適当に入力して登録ボタンを押すとログが出力されるかと思います
 
-- 現状のUIは以下のとおりです。
+![session1-4-output-log](https://user-images.githubusercontent.com/57338033/156873664-5fda6438-5718-4fbe-b076-d4178cde9501.png)
 
-![session1-3-result](https://user-images.githubusercontent.com/57338033/156867540-34b3b50a-e29d-4523-9908-45d7da2e2259.png)
+- もしLogが大量にあって見ずらいということであれば検索で`Register`と入力すると見やすくなるかと思います。
 
-次からコードを記述していきます！
+- ここで今回追加したコードの解説をします。
+  - Viewという言葉が出てきますが、Viewとはクラスであり今まで配置してきたテキストやボタンはViewから派生してできたサブクラスです。ですので、今後Viewという言葉がでてきたら「ボタンやテキストのことなんだな」というかんじで捉えていただければ問題ないと思います。
+  - `binding.registerButtonRegister`は`activity_register`のidが`register_button_register`であるViewにアクセスしています。
+  - Viewにアクセスするときは`binding.{id}`でアクセスできます。このときidは自動生成の際に[キャメルケース](https://e-words.jp/w/%E3%82%AD%E3%83%A3%E3%83%A1%E3%83%AB%E3%82%B1%E3%83%BC%E3%82%B9.html)に変更されています。
+  - `setOnClickListener`はViewがタップされたときに実行される処理を登録します。`{}`で囲まれた部分の処理を実行します。
+
+## 「すでにアカウントをお持ちですか？」を押されたときの処理を追加する
+- このテキストにはタップされたときログイン画面へ遷移させる役割をもたせます。
+- とりあえずさきほどのようにこのテキストに`binding`でアクセスし、タップされたときの処理を追加します。
+
+```diff
+    ...略
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+        binding.registerButtonRegister.setOnClickListener {
+              val email = binding.emailEdittextRegister.text.toString();
+              val password = binding.passwordEdittextRegister.text.toString();
+
+              Log.d(TAG, "Email is: ${email}")
+              Log.d(TAG, "password is: ${password}")
+       }
+
++       binding.haveAccountTextRegister.setOnClickListener {
++           Log.d(TAG, "try to show login activity")
++       }
+    }
+    ...略
+```
+
+- 実行してログに「try to show login activity」が表示されれば大丈夫です。
+
+## 画面遷移する
+- ログイン画面を作り、ユーザー登録画面から遷移できるようにします。
+- まず下図のように`RegisterActivity`の一つ上層のファイルで右クリックして、`New`→`Activity`→`Empty Activity`を選択します。
+
+![image](https://user-images.githubusercontent.com/57338033/156875803-8bd6529e-32f6-40fc-8dac-2e88d6b4e6c0.png)
+
+- `LoginActivity`という名前でファイルを作成します。
+- すると`java/com.example.{app name}`に`LoginActivity`が、`res/layout`に`activity_login`というxmlファイルが作成されます。
+
+![session1-4-create-new-activity-file](https://user-images.githubusercontent.com/57338033/156876004-e56282a9-afd7-4a64-b792-dcdfda3fcd5e.png)
+
+- `RegisterActivity`に戻り、以下の内容を追加します。
+- `unresolved reference:Intent`というエラーが出た際は先程と同様`Alt`+`Enster`でimportしましょう
+
+```diff
+    ...略
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+        binding.registerButtonRegister.setOnClickListener {
+              val email = binding.emailEdittextRegister.text.toString();
+              val password = binding.passwordEdittextRegister.text.toString();
+
+              Log.d(TAG, "Email is: ${email}")
+              Log.d(TAG, "password is: ${password}")
+       }
+
+        binding.haveAccountTextRegister.setOnClickListener {
+            Log.d(TAG, "try to show login activity")
++            
++           val intent = Intent(this, LoginActivity::class.java)
++           startActivity(intent)
+       }
+    }
+    ...略
+```
+- インテントの説明
+- それでは実行してみましょう
+- 「すでにアカウントをお持ちですか？」をタップしたときに以下のように画面が変われば成功です。
+
+![session1-4-login-activity](https://user-images.githubusercontent.com/57338033/156877293-68f79318-4db2-490a-89ff-b1df3bef43aa.png)
+
+## 戻るボタンを付ける
+- ここまでで画面遷移はできました。しかし登録画面に戻ることができません。そこで戻るボタンの実装をします。
+- `manifests/AndroidManifest`を開き、以下の内容を追加します。
+
+```diff
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.handsonchatapp">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.HandsOnChatApp">
+        <activity
++           android:name=".LoginActivity"
++           android:exported="false" >
++           <meta-data
++               android:name="android.support.PARENT_ACTIVITY"
++               android:value=".RegisterActivity"/>
+        </activity>
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+```
+
+- 追加できましたら実行しましょう。戻るボタンが`StatusBarに表示され、押すと戻ることができます。`
+
+![session1-4-add-backButton](https://user-images.githubusercontent.com/57338033/156877655-c7c56272-1a4d-47e3-87f5-ad7adacd6abf.png)
+
+## SelectPhotoButtonの処理を追加する
+- SelectPhotoButtonが押されると端末に保存されている写真にアクセスし、選択した写真を円形の中に表示させます。
+- 以下の処理を`RegisterActivityに追加します。`
+
+```diff
+    ...略
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+        binding.registerButtonRegister.setOnClickListener {
+              val email = binding.emailEdittextRegister.text.toString();
+              val password = binding.passwordEdittextRegister.text.toString();
+
+              Log.d(TAG, "Email is: ${email}")
+              Log.d(TAG, "password is: ${password}")
+       }
+
+        binding.haveAccountTextRegister.setOnClickListener {
+            Log.d(TAG, "try to show login activity")
+             
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+       }
+       
++      binding.selectPhotoButtonRegister.setOnClickListener {
++          Log.d(tag, "Try to show photo selector")
++
++          val intent = Intent(Intent.ACTION_PICK)
++          intent.type = "image/*"
++          startActivityForResult(intent, 0)
++      }
+    }
+    ...略
+```
+
+- 一旦実行してみましょう
+- 写真を選択を押すと写真を選ぶ画面に移動することが確認できると思います。そして適当な写真を選ぶともとの画面に戻ってくると思います。
+
+![session1-4-select-photo-scene](https://user-images.githubusercontent.com/57338033/156878242-1eb4e126-365f-40e1-9644-9d1fd2822b43.png)
+
+- 写真を選択することはできましたが、選択した写真を反映することができていません。ですので、追加していきます。
+- `onActivityResult`という関数があります。これを`override`することで実現します。以下の内容を追加しましょう。
+- `Unresolve reference`のエラーは先程と同様にimportしましょう
+
+```diff
+    ...略
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+        binding.registerButtonRegister.setOnClickListener {
+              val email = binding.emailEdittextRegister.text.toString();
+              val password = binding.passwordEdittextRegister.text.toString();
+
+              Log.d(TAG, "Email is: ${email}")
+              Log.d(TAG, "password is: ${password}")
+       }
+
+        binding.haveAccountTextRegister.setOnClickListener {
+            Log.d(TAG, "try to show login activity")
+             
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+       }
+       
+       binding.selectPhotoButtonRegister.setOnClickListener {
+           Log.d(tag, "Try to show photo selector")
+ 
+           val intent = Intent(Intent.ACTION_PICK)
+           intent.type = "image/*"
+           startActivityForResult(intent, 0)
+       }
+    }
+
++   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
++       super.onActivityResult(requestCode, resultCode, data)
++
++       if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
++           Log.d(tag, "Photo was selected")
++
++           val uri = data.data
++
++           val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
++           binding.circleViewRegister.setImageBitmap(bitmap)
++           binding.selectPhotoButtonRegister.alpha = 0f
++       }
++   }
+    ...略
+```
+
+- ここでコードの説明をしておきます。
+- 実際に実行してみましょう
+- 画像を選択してユーザー登録画面に選択した画像が丸く表示されていれば大丈夫です。
+
+![session1-4-set-image](https://user-images.githubusercontent.com/57338033/156878794-cfebf9f7-3f00-4d0e-b317-25d001a38278.png)
 
 ## Diff
 
 <details>
 <summary>前回との差分</summary>
-    DiffではActionBarが紫に指定されておりませんが、気にしないでください<br>
-    <a href="https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/8497e7c412a7383d3bc502e9866a00a3c34e504c">diff</a>
+    <a href="https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/cd83163fed87fb46b11cf33cdb612d2224078250">diff</a>
 </details>
 
+## 課題
+- 現状ログイン画面には何もない状態ですので、ログイン画面を以下の通りにレイアウトを作ってみましょう。merginとIdは以下に記載するのでそのように設定してください
+  - メールアドレス入力フォーム
+    - `merginTop`:`206dp`
+    - `merginRight`:`32dp`
+    - `merginLeft`:`32dp`
+    - `id`:`email_edittext_login`
+  - パスワード入力フォーム
+    - `merginTop`:`12dp`
+    - `id`:`password_edittext_login`
+  - ログインボタン
+    - `merginTop`:`12dp`
+    - `id`:`login_button_login`
+  - 登録へ戻る
+    - `merginTop`:`24dp`
+    - `id`:`back_to_register_text_login`
 
+- またログインボタンが押されたとき、入力されているEmail・Passwordをログで出力してみましょう。
+- 「登録に戻る」というボタンを押されたときユーザー登録画面に戻るよう実装してみましょう。以下の関数を実行するとユーザー登録の画面に戻ります。
+
+```
+  finish()
+```
+
+![session1-4-task-login-scene](https://user-images.githubusercontent.com/57338033/156879230-9827d280-085b-4851-9ec4-6e130d781ecf.png)
+
+[答え](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/9965485463ce648bfe46cabd5cda73dc19cfb4ad)
 
 ## Next
