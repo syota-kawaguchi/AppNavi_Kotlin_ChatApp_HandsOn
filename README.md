@@ -143,10 +143,20 @@ dependencies {
 
 - これで画像を丸くする対応は完了です！
 
+- 現状のUIは以下のとおりです。
+
+![session1-3-result](https://user-images.githubusercontent.com/57338033/156867540-34b3b50a-e29d-4523-9908-45d7da2e2259.png)
+
+次からコードを記述していきます！
+
+## Diff
+
 <details>
 <summary>前回との差分</summary>
     DiffではActionBarが紫に指定されておりませんが、気にしないでください<br>
     <a href="https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/8497e7c412a7383d3bc502e9866a00a3c34e504c">diff</a>
 </details>
+
+
 
 ## Next
