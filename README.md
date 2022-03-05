@@ -100,4 +100,13 @@ idを設定しましょう。これは後にコードとUIを関連付けるた�
 
 ![session1-1-result](https://user-images.githubusercontent.com/57338033/156562495-dbf88cce-1250-4cbc-8fd1-0210ae8f232c.png)
 
+## Diff
+
+<details>
+<summary>前回との差分</summary>
+<a href="https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/891ba469f1756f41009004bede0bc72db1283a5c">diff</a>
+</details>
+
 ## Next
+
+[session1.2 ボタン・画像を配置する](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session1.2)
