@@ -109,4 +109,37 @@
   
 </details>
 
+
+## 課題
+- 現状ログイン画面には何もない状態ですので、ログイン画面を以下の通りにレイアウトを作ってみましょう。merginとIdは以下に記載するのでそのように設定してください
+  - メールアドレス入力フォーム
+    - `merginTop`:`206dp`
+    - `merginRight`:`32dp`
+    - `merginLeft`:`32dp`
+    - `id`:`email_edittext_login`
+  - パスワード入力フォーム
+    - `merginTop`:`12dp`
+    - `id`:`password_edittext_login`
+  - ログインボタン
+    - `merginTop`:`12dp`
+    - `id`:`login_button_login`
+  - 登録へ戻る
+    - `merginTop`:`24dp`
+    - `id`:`back_to_register_text_login`
+
+- またログインボタンが押されたとき、入力されているEmail・Passwordをログで出力してみましょう。
+- 「登録に戻る」というボタンを押されたときユーザー登録画面に戻るよう実装してみましょう。以下の関数を実行するとユーザー登録の画面に戻ります。
+
+```
+  finish()
+```
+
+- ***追記***ボタンのテキストが「登録」となっておりますが、「ログイン」に変更してください。申し訳ないです🙇
+
+![session1-4-task-login-scene](https://user-images.githubusercontent.com/57338033/156879230-9827d280-085b-4851-9ec4-6e130d781ecf.png)
+
+[答え](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/9965485463ce648bfe46cabd5cda73dc19cfb4ad)
+
+=======
+
 ## Next
