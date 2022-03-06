@@ -140,6 +140,5 @@
 
 [答え](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/9965485463ce648bfe46cabd5cda73dc19cfb4ad)
 
-=======
 
 ## Next
