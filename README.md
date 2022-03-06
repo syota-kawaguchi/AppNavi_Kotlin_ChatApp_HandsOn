@@ -347,6 +347,8 @@
   finish()
 ```
 
+- ***追記***ボタンのテキストが「登録」となっておりますが、「ログイン」に変更してください。申し訳ないです🙇
+
 ![session1-4-task-login-scene](https://user-images.githubusercontent.com/57338033/156879230-9827d280-085b-4851-9ec4-6e130d781ecf.png)
 
 [答え](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/9965485463ce648bfe46cabd5cda73dc19cfb4ad)
