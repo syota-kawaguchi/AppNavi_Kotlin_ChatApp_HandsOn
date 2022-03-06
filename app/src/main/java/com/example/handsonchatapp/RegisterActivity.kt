@@ -24,24 +24,7 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(view)
 
         binding.registerButtonRegister.setOnClickListener {
-              val email = binding.emailEdittextRegister.text.toString();
-              val password = binding.passwordEdittextRegister.text.toString();
-
-              Log.d(TAG, "Email is: ${email}")
-              Log.d(TAG, "password is: ${password}")
-
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener{
-                    if (it.isCanceled){
-                        Log.d(TAG, "Canceled")
-                    }
-                    if (!it.isSuccessful) {
-                        Log.d(TAG, "Failed to create user ${it.exception}")
-                        return@addOnCompleteListener
-                    }
-
-                    Log.d(TAG, "Successfully created user with uid: ${it.result.user?.uid}")
-                }
+              performRegister()
        }
 
         binding.haveAccountTextRegister.setOnClickListener {
