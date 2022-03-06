@@ -330,7 +330,11 @@
 
 <details>
   <summary>前回との差分</summary>
+
+  メソッド抽出した関数を実行することを失念しておりました。🙇
     <a href="https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/c37b5b1d8089d65641a1b6aada2b242e77842853">diff</a>
+    <a href="https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/9c36d38ab4369236428be52e064e4fb5b23da78d">diff</a>
+
 </details>
 
 ## Next
