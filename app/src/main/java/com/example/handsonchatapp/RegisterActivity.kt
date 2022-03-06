@@ -6,7 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import com.example.handsonchatapp.databinding.ActivityRegisterBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -22,11 +24,7 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(view)
 
         binding.registerButtonRegister.setOnClickListener {
-              val email = binding.emailEdittextRegister.text.toString();
-              val password = binding.passwordEdittextRegister.text.toString();
-
-              Log.d(TAG, "Email is: ${email}")
-              Log.d(TAG, "password is: ${password}")
+              performRegister()
        }
 
         binding.haveAccountTextRegister.setOnClickListener {
@@ -43,6 +41,38 @@ class RegisterActivity : AppCompatActivity() {
             intent.type = "image/*"
             startActivityForResult(intent, 0)
         }
+    }
+
+    private fun performRegister() {
+        val email = binding.emailEdittextRegister.text.toString();
+        val password = binding.passwordEdittextRegister.text.toString();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Please enter text in email or password", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        Log.d(TAG, "Email is: ${email}")
+        Log.d(TAG, "password is: ${password}")
+
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener{
+                if (!it.isSuccessful) {
+                    Toast.makeText(this, "Failed to create user", Toast.LENGTH_SHORT).show()
+                    return@addOnCompleteListener
+                }
+
+                //else if successful
+                Log.d(TAG, "Successfully created user with uid: ${it.result.user?.uid}")
+                val intent = Intent(this, MessageActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            }
+            .addOnFailureListener{
+                //emailのformatが違ったら実行
+                Log.d(TAG, "failed to create user message ${it.message}")
+                Toast.makeText(this, "Failed to create user", Toast.LENGTH_SHORT).show()
+            }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
