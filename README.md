@@ -1,144 +1,287 @@
 # アプリナビ Kotlin HandsOn
 
-## 3.1　画面を追加し、移動できるようにする
+## 3.2　メッセージ画面の作成
+今回は`Status Bar`にサインアウトボタンを追加し、画面にリストを表示します。
 
-今回から以下のようなユーザー一覧画面を作成していきます。<br>
-(画像)<br>
-まずは画面を追加し、この画面にたどり着けるようにします。
+## サインアウトボタンを表示する。
+- 以下のように`Status Bar`にサインアウトボタンを追加します。
+<br>画像<br>
+- これを実装するにあたってMenuを用います。
+- `app/res`直下に`menu`フォルダーを作成しましょう。`app/res`の上にマウスをあわせた状態で右クリックし、`New`→`Directory`でフォルダーを追加できます。
+- 作成した`menu`フォルダーに`nav_menu.xml`を作成しましょう。`menu`フォルダーにマウスを合わせた状態で右クリックし、`New`→`Menu Resource File`で追加できます。
+- 追加できましたら作成したファイルを開きましょう。ViewモードをCodeに切り替え、下記のように内容を書き換えます。
 
-## Activityを追加する
+```xml
+  <?xml version="1.0" encoding="utf-8"?>
+  <menu xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:android="http://schemas.android.com/apk/res/android">
 
-- `EmptyActivity`を追加します。 ファイル名は「MessageActivity」とします。
-
-![session3 1-add-latest-message-activity](https://user-images.githubusercontent.com/57338033/156921369-cd81892e-f23c-4ad6-a7c9-d84e97e5819f.png)
-
-- すると`MessageActivity,kt`と`activity_message.xml`が追加されます。
-
-![image](https://user-images.githubusercontent.com/57338033/156922811-af8d27da-245d-4b34-aa36-643e9da40b28.png)
-
-## 登録・ログイン完了時MessageActivityに遷移させる。
-
-- ユーザー登録・ログイン完了時にMessageActivityに画面遷移するようにします。
-- `RegisterActivity`を開き、以下の緑色のハイライトを追加します。
-
-```diff
-  private fun performRegister() {
-        val email = binding.emailEdittextRegister.text.toString();
-        val password = binding.passwordEdittextRegister.text.toString();
-
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please enter text in email or password", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        Log.d(TAG, "Email is: ${email}")
-        Log.d(TAG, "password is: ${password}")
-
-        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener{
-                if (!it.isSuccessful) {
-                    Toast.makeText(this, "Failed to create user", Toast.LENGTH_SHORT).show()
-                    return@addOnCompleteListener
-                }
-
-                //else if successful
-                Log.d(TAG, "Successfully created user with uid: ${it.result.user?.uid}")
-+               val intent = Intent(this, MessageActivity::class.java)
-+               intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-+               startActivity(intent)
-            }
-            .addOnFailureListener{
-                //emailのformatが違ったら実行
-                Log.d(TAG, "failed to create user message ${it.message}")
-                Toast.makeText(this, "Failed to create user", Toast.LENGTH_SHORT).show()
-            }
-    }
+      <item android:id="@+id/menu_sign_out"
+          android:title="Sign Out"
+          app:showAsAction="ifRoom" />
+  </menu>
 ```
 
-- 追加できましたら実行してみましょう。ユーザー名・メールアドレス・パスワードを入力して登録ボタンを押したあと画面遷移したらOKです。
-- **すでに登録しているメールアドレスを使用すると登録に失敗します。** 
-- つづいて`LoginActivity`にも同様に画面遷移処理を追加します。以下の緑色のハイライトを追加しましょう
+- 書き換えが完了しましたらViewモードをDesingに切り替えましょう。下記のように`Status bar`の右に`SIGN OUT`という文字列が表示されていればOKです。
+
+![session3 2-add-nav-menu](https://user-images.githubusercontent.com/57338033/156949557-75f8a938-cd36-47b9-9f03-db4b3210868c.png)
+
+- 続いて`SIGN OUT`がタップされたときの処理を追加します。
+- `MessageActivity`を開き、以下の緑色のハイライトを追加しましょう。
 
 ```diff
-...略
-        binding = ActivityLoginBinding.inflate(layoutInflater)
+  package com.example.handsonchatapp
++ import android.content.Intent
+  import androidx.appcompat.app.AppCompatActivity
+  import android.os.Bundle
++ import android.view.Menu
++ import android.view.MenuItem
++ import com.google.firebase.auth.FirebaseAuth
+
+  class MessageActivity : AppCompatActivity() {
+      override fun onCreate(savedInstanceState: Bundle?) {
+          super.onCreate(savedInstanceState)
+          setContentView(R.layout.activity_message)
+      }
++
++     override fun onOptionsItemSelected(item: MenuItem): Boolean {
++         if (item?.itemId == R.id.menu_sign_out){
++             FirebaseAuth.getInstance().signOut()
++             val intent = Intent(this, RegisterActivity::class.java)
++             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
++             startActivity(intent)
++         }
++
++         return super.onOptionsItemSelected(item)
++     }
++
++     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
++         menuInflater.inflate(R.menu.nav_menu, menu)
++         return super.onCreateOptionsMenu(menu)
++     }
+  }
+```
+
+- ここまでできましたら一度実行し、`SIGN OUT`をタップしましょう。ログアウトし、登録画面に遷移しましたらOKです。
+- ここでコードの説明をします。
+- ～説明～
+
+## RecyclerViewを配置する
+
+つづいてリスト表示を実装します。以下の画面のように`MessageActivity`にUser一覧を表示します。
+
+![session3 2-user-list-view-sample](https://user-images.githubusercontent.com/57338033/156951341-a5f1afe0-7bfc-422c-a3be-1febdfef19c7.png)
+
+- まずは`activity_message`を編集します。
+- `Palette`から`RecyclerView`をドラッグ＆ドロップし、以下のように設定します。Constraintの設定で`parent`と表記していますが、画面端に合わせることと同義です。
+  - `layout_widht` : `0dp`
+  - `layout_height` : `0dp`
+  - Constraint left : `parent`
+  - Constraint right : `parent`
+  - Constraint top : `parent`
+  - Constraint bottom : `parent`
+  - `id` : `recyclerView_message`
+
+![session3 2-add-recycler-view](https://user-images.githubusercontent.com/57338033/156955835-d3b480b4-2557-433f-8f18-3c0be3d34396.png)
+
+## アイテムの実装
+
+- つづいてリストに表示されるアイテムを実装していきます。
+- 最初にレイアウトを作ります。`layout`フォルダーに`message_row`という名前でxmlファイルを作成しましょう。
+- 追加できましたらParentの高さを変更します。Component Treeを見ると１つだけViewがあると思います。このViewの高さを`100dp`に設定します。
+ 
+![session3 2-change-parent-height](https://user-images.githubusercontent.com/57338033/156959006-10f1a90c-cb9e-40c4-a2da-dbfd5d2577fe.png)
+
+- ImageViewを追加し、以下のように設定します。(Avatorは何でもいいです)
+- 以下のよう`imageView`の大きさを設定します。
+  - `layout_width` : `64dp`
+  - `layout_height` : `64dp`
+- 下図のようにconstraintを設定します。
+
+![session3 2-set-imageview-constraint](https://user-images.githubusercontent.com/57338033/156960545-9398b07f-3b0c-4f41-9b69-475585906055.png)
+
+- `merginStart`を`16dp`に設定します。
+- `id`を`userimage_imageview_message`に設定します。
+
+- 続いて`textview`２つ追加します。以降一方を`username`、もう一方を`latestmessage`と呼びます。
+- 下図のように`username`のconstraintを設定します。少し見づらいですが、`username`のボトムのconstraintは`latestmessage`のトップにドラッグ＆ドロップします。
+
+![session3 2-set-username-constraint](https://user-images.githubusercontent.com/57338033/156965245-69d3075b-5dcf-4818-a72c-0665005422f8.png)
+
+- 下図のように`latestmessage`のconstraintを設定します。
+
+![session3 2-set-latestmessage-constraint](https://user-images.githubusercontent.com/57338033/156969719-a85fa5a8-5bd4-4187-84ac-f24943625ee4.png)
+
+- [チェーン](https://developer.android.com/training/constraint-layout?hl=ja#constrain-chain)を設定します。
+- チェーンはリンクさせたViewを垂直または水平方向に制約をつけて配置してくれます。
+- `username`と`latestmessage`を選択した状態で右クリックし、`Chains`→`Create Vertical Chain`を選択します。
+
+![image](https://user-images.githubusercontent.com/57338033/156970752-dc5ee368-7602-438a-b273-5fd04c660ce5.png)
+
+- その後２つ選択されている状態で再度右クリックして`Chains`→`Vertical Chain Style`→`packed`を選択しましょう。以下のような画面になっていればOKです。
+
+![image](https://user-images.githubusercontent.com/57338033/156970981-2705c7f0-0ea6-4508-bed8-a6e9aca04576.png)
+
+- `username`を以下の設定にします。
+  - `id` : `username_textview_message`
+  - `text` : `username`
+  - `margin`
+    - `Start` : `16dp`
+    - `Bottom` : `8dp`
+  - `textStyle` : `bold`
+  - `text size`: `16sp`
+- `latest message`を以下の設定にします。
+  - `id` : `latestmessage_textview_message`
+  - `text` : `latest message`
+  - `layout_width` : `0dp`
+  - `margin`
+    - `Start` : `16dp`
+    - `End` : `8dp`
+  - `text size` : `16sp`
+- ViewモードをCodeに変更し、`ImageView`を`de.hdodenhof.circleimageview.CircleImageView`に書き換えます。
+
+- 以下のような画面になっていればOKです。
+
+![session3 2-message-row-result](https://user-images.githubusercontent.com/57338033/156975469-b19a551e-569a-4154-abb2-deb4f4c950ff.png)
+
+## Adaptorの実装
+- 右のバーで右クリック → `New` → `Kotlin Class/File`を選択
+- `MessageAdapter`という名前でファイルを作成
+- 以下の内容を追加しましょう
+
+```kotlin
+  package com.example.handsonchatapp
+
+  import android.view.LayoutInflater
+  import android.view.View
+  import android.view.ViewGroup
+  import androidx.recyclerview.widget.RecyclerView
+  import com.example.handsonchatapp.databinding.MessageRowBinding
+
+  class MessageAdapter(private val messageItems: List<MessageItem>, private val listener : ListListener) : RecyclerView.Adapter<MessageViewHolder>() {
+
+      interface ListListener {
+          fun onClickItem(tappedView: View, messageItem: MessageItem)
+      }
+
+      override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
+          val itemBinding = MessageRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+          return MessageViewHolder(itemBinding)
+      }
+
+      override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
+          holder.bind(messageItems[position], listener)
+      }
+
+      override fun getItemCount(): Int = messageItems.size
+  }
+
+  class MessageViewHolder(private val itemBinding: MessageRowBinding) : RecyclerView.ViewHolder(itemBinding.root) {
+      fun bind(item: MessageItem, listener: MessageAdapter.ListListener) {
+          itemBinding.usernameTextviewMessage.text = item.username
+          itemBinding.latestmessageTextviewMessage.text = item.message
+          val userImage = itemBinding.userimageImageviewMessage
+          itemBinding.root.setOnClickListener {
+              listener.onClickItem(it, item)
+          }
+      }
+  }
+
+  class MessageItem(val username: String, val message: String, val progileImageUrl: String) {
+      constructor() : this("", "", "")
+  }
+```
+
+## List表示する
+- message画面でリスト表示を実装します。
+- `MessageActivity`を開きます。
+- 以下の内容を追加しましょう
+
+```kotlin
+package com.example.handsonchatapp
+
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.handsonchatapp.databinding.ActivityMessageBinding
+import com.google.firebase.auth.FirebaseAuth
+
+class MessageActivity : AppCompatActivity() {
+
+    private val TAG = "Message Activity"
+
+    private lateinit var binding : ActivityMessageBinding
+
+    var recyclerView: RecyclerView? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityMessageBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
-        binding.loginButtonLogin.setOnClickListener {
-            val email = binding.emailEdittextLogin.text.toString()
-            val password = binding.passwordEdittextLogin.text.toString()
+        recyclerView = binding.recyclerViewMessage
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please enter text in email or password", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+        val messageItems = mutableListOf<MessageItem>()
+        messageItems.add(MessageItem("username", "Hello world", ""))
+        messageItems.add(MessageItem("username", "Hello world", ""))
+        messageItems.add(MessageItem("username", "Hello world", ""))
+        messageItems.add(MessageItem("username", "Hello world", ""))
 
-            Log.d(TAG, "email : ${email}, password:${password}")
-
-            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener {
-                    if (!it.isSuccessful) {
-                        Toast.makeText(this, "Failed to Login", Toast.LENGTH_SHORT).show()
-                        return@addOnCompleteListener
+        recyclerView?.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+            adapter = MessageAdapter(
+                messageItems,
+                object : MessageAdapter.ListListener {
+                    override fun onClickItem(tappedView: View, messageItem: MessageItem) {
                     }
-
-                    Log.d(TAG, "Successful Login")
-+                   val intent = Intent(this, MessageActivity::class.java)
-+                   intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-+                   startActivity(intent)
                 }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Failed to Login", Toast.LENGTH_SHORT).show()
-                }
+            )
         }
-...略
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.menu_sign_out){
+            FirebaseAuth.getInstance().signOut()
+            val intent = Intent(this, RegisterActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.nav_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+}
 ```
 
-- こちらはすでにユーザーとして登録されている情報を入力し、ログインボタンを押して画面が遷移されましたら問題ないです。
+- 追加できましたら実行してみましょう。
+- 下図のようにユーザー名にusername、メッセージにHello worldと表記されたアイテムが４つ表示されていればOKです。
 
-これで画面の追加とこの画面にたどり着くことができました。<br>
-次から画面のレイアウトを作ります。
+![session3 2-user-list-view-result](https://user-images.githubusercontent.com/57338033/156992572-a441847d-0a2b-4dc9-a806-252fbf0e28e0.png)
+
+今回はここまでです。<br>
+現状仮のリストを表示しています。次はデータベースにユーザーを保存し、データベースからユーザーの情報を取得してListに表示します。
 
 ## Diff
 
 <details>
+  
 <summary>前回との差分</summary>
   
-・[diff](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/764d5af007b12d588784db6e995a4664431b7920)
+  [diff](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/a5b3d5b06e8320f4e550869fadad28230dbb3563)
   
 </details>
-
-
-## 課題
-- 現状ログイン画面には何もない状態ですので、ログイン画面を以下の通りにレイアウトを作ってみましょう。merginとIdは以下に記載するのでそのように設定してください
-  - メールアドレス入力フォーム
-    - `merginTop`:`206dp`
-    - `merginRight`:`32dp`
-    - `merginLeft`:`32dp`
-    - `id`:`email_edittext_login`
-  - パスワード入力フォーム
-    - `merginTop`:`12dp`
-    - `id`:`password_edittext_login`
-  - ログインボタン
-    - `merginTop`:`12dp`
-    - `id`:`login_button_login`
-  - 登録へ戻る
-    - `merginTop`:`24dp`
-    - `id`:`back_to_register_text_login`
-
-- またログインボタンが押されたとき、入力されているEmail・Passwordをログで出力してみましょう。
-- 「登録に戻る」というボタンを押されたときユーザー登録画面に戻るよう実装してみましょう。以下の関数を実行するとユーザー登録の画面に戻ります。
-
-```
-  finish()
-```
-
-- ***追記***ボタンのテキストが「登録」となっておりますが、「ログイン」に変更してください。申し訳ないです🙇
-
-![session1-4-task-login-scene](https://user-images.githubusercontent.com/57338033/156879230-9827d280-085b-4851-9ec4-6e130d781ecf.png)
-
-[答え](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/9965485463ce648bfe46cabd5cda73dc19cfb4ad)
-
 
 ## Next
