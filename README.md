@@ -271,8 +271,215 @@ class MessageActivity : AppCompatActivity() {
 
 ![session3 2-user-list-view-result](https://user-images.githubusercontent.com/57338033/156992572-a441847d-0a2b-4dc9-a806-252fbf0e28e0.png)
 
-今回はここまでです。<br>
-現状仮のリストを表示しています。次はデータベースにユーザーを保存し、データベースからユーザーの情報を取得してListに表示します。
+- つづいてデータベースからユーザー情報を取得してリストに表示させます。
+- リストを表示するにあたってユーザーデータが複数あったほうがわかりやすいので、４つほどデータを作りましょう。
+- データの作成が完了しましたら、`MessageActivity`を開き、以下のように編集します。
+
+```diff
+  package com.example.handsonchatapp
+
+  import android.content.Intent
+  import androidx.appcompat.app.AppCompatActivity
+  import android.os.Bundle
++ import android.util.Log
+  import android.view.Menu
+  import android.view.MenuItem
+  import android.view.View
+  import androidx.recyclerview.widget.LinearLayoutManager
+  import androidx.recyclerview.widget.RecyclerView
+  import com.example.handsonchatapp.databinding.ActivityMessageBinding
+  import com.google.firebase.auth.FirebaseAuth
++ import com.google.firebase.database.DataSnapshot
++ import com.google.firebase.database.DatabaseError
++ import com.google.firebase.database.FirebaseDatabase
++ import com.google.firebase.database.ValueEventListener
+
+  class MessageActivity : AppCompatActivity() {
++
++     companion object {
++         var currentUser: User? = null
++     }
+
+      private val TAG = "Message Activity"
+
+      private lateinit var binding : ActivityMessageBinding
+
+      var recyclerView: RecyclerView? = null
+
+      override fun onCreate(savedInstanceState: Bundle?) {
+          super.onCreate(savedInstanceState)
+
+          binding = ActivityMessageBinding.inflate(layoutInflater)
+          val view = binding.root
+          setContentView(view)
+
+          recyclerView = binding.recyclerViewMessage
+
+-         val messageItems = mutableListOf<MessageItem>()
+-         messageItems.add(MessageItem("username", "Hello world", ""))
+-         messageItems.add(MessageItem("username", "Hello world", ""))
+-         messageItems.add(MessageItem("username", "Hello world", ""))
+-         messageItems.add(MessageItem("username", "Hello world", ""))
+
+-         private fun refreshRecyclerView(messageItems : List<MessageItem>) {
+-              recyclerView?.apply {
+-                  setHasFixedSize(true)
+-                  layoutManager = LinearLayoutManager(context)
+-                  adapter = MessageAdapter(
+-                      messageItems,
+-                      object : MessageAdapter.ListListener {
+-                          override fun onClickItem(tappedView: View, messageItem: MessageItem) {
+-                          }
+-                      }
+-                  )
+-              }
+-          }
+
++         fetchCurrentUser()
++
++         listenForLatestMessage()
+      }
++
++     private fun fetchCurrentUser() {
++         val uid = FirebaseAuth.getInstance().uid
++
++         if (uid == null) {
++             val intent = Intent(this, RegisterActivity::class.java)
++             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
++             startActivity(intent)
++         }
++
++         val ref = FirebaseDatabase.getInstance().getReference("users/$uid")
++         ref.addListenerForSingleValueEvent(object : ValueEventListener {
++             override fun onDataChange(snapshot: DataSnapshot) {
++                 currentUser = snapshot.getValue(User::class.java)
++                 Log.d(TAG, "current User ${currentUser?.username}")
++             }
++
++             override fun onCancelled(error: DatabaseError) {}
++         })
++     }
++
++     private fun listenForLatestMessage() {
++         val fromId = FirebaseAuth.getInstance().uid
++         val ref = FirebaseDatabase.getInstance().getReference("/users")
++
++         ref.addListenerForSingleValueEvent(object : ValueEventListener {
++             override fun onDataChange(snapshot: DataSnapshot) {
++                 val messageItems = snapshot.children.mapNotNull { userSnapshot ->
++                     val user = userSnapshot.getValue(User::class.java) ?: return@mapNotNull null
++
++                     if (user.uid == currentUser?.uid) {
++                         return@mapNotNull  null
++                     }
++
++                     MessageItem(user.username, "Hello world", user.profileImageUrl)
++                 }
++                 refreshRecyclerView(messageItems)
++             }
++
++             override fun onCancelled(error: DatabaseError) {}
++         })
++    }
++
++    private fun refreshRecyclerView(messageItems : List<MessageItem>) {
++         recyclerView?.apply {
++             setHasFixedSize(true)
++             layoutManager = LinearLayoutManager(context)
++             adapter = MessageAdapter(
++                 messageItems,
++                 object : MessageAdapter.ListListener {
++                     override fun onClickItem(tappedView: View, messageItem: MessageItem) {
++                     }
++                 }
++             )
++         }
++     }
+
+      override fun onOptionsItemSelected(item: MenuItem): Boolean {
+          if (item.itemId == R.id.menu_sign_out){
+              FirebaseAuth.getInstance().signOut()
+              val intent = Intent(this, RegisterActivity::class.java)
+              intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+              startActivity(intent)
+          }
+
+          return super.onOptionsItemSelected(item)
+      }
+
+      override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+          menuInflater.inflate(R.menu.nav_menu, menu)
+          return super.onCreateOptionsMenu(menu)
+      }
+  }
+
+```
+
+- ここまで実装できましたらログインして`messageActivity`の画面を確認してみましょう。
+- 自分以外のUserが表示されていればOKです。
+
+![session3 3-show-user-message-activitypng](https://user-images.githubusercontent.com/57338033/157040273-97d45bad-05f9-4144-9719-2827e9a08aab.png)
+
+- しかし画像が表示されていません。最後にここを実装してこのセクションは終了です。
+- 画像を表示するにあたって[Picasso](https://github.com/square/picasso)というライブラリを使います。
+- 以下の行を`build.gradle(Module)`追加しましょう。(2022年３月時点のVersionです。実装する際は[こちら](https://github.com/square/picasso)を確認していただ供養お願いします。)
+
+```
+  implementation 'com.squareup.picasso:picasso:2.71828'
+```
+
+- 追加できましたら`MessageAdapter`に以下の処理を追加しましょう。
+
+```diff
+  package com.example.handsonchatapp
+
+  import android.view.LayoutInflater
+  import android.view.View
+  import android.view.ViewGroup
+  import androidx.recyclerview.widget.RecyclerView
+  import com.example.handsonchatapp.databinding.MessageRowBinding
++ import com.squareup.picasso.Picasso
+
+  class MessageAdapter(private val messageItems: List<MessageItem>, private val listener : ListListener) : RecyclerView.Adapter<MessageViewHolder>() {
+
+      interface ListListener {
+          fun onClickItem(tappedView: View, messageItem: MessageItem)
+      }
+
+      override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
+          val itemBinding = MessageRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+          return MessageViewHolder(itemBinding)
+      }
+
+      override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
+          holder.bind(messageItems[position], listener)
+      }
+
+      override fun getItemCount(): Int = messageItems.size
+  }
+
+  class MessageViewHolder(private val itemBinding: MessageRowBinding) : RecyclerView.ViewHolder(itemBinding.root) {
+      fun bind(item: MessageItem, listener: MessageAdapter.ListListener) {
+          itemBinding.usernameTextviewMessage.text = item.username
+          itemBinding.latestmessageTextviewMessage.text = item.message
+          val userImage = itemBinding.userimageImageviewMessage
++         Picasso.get().load(item.progileImageUrl).into(userImage)
+          itemBinding.root.setOnClickListener {
+              listener.onClickItem(it, item)
+          }
+      }
+  }
+
+  class MessageItem(val username: String, val message: String, val progileImageUrl: String) {
+      constructor() : this("", "", "")
+  }
+```
+
+- 追加できましたら実行してみましょう。以下のように表示されればOKです。(表示に多少時間がかかる場合がございます)
+
+![session3 3-show-userImage-message-activitypng](https://user-images.githubusercontent.com/57338033/157044187-ba992d06-872c-4878-b1e8-3e2e23feb013.png)
+
+今回はここまでです。次はチャット画面・機能を実装していきます。
 
 ## Diff
 
@@ -280,7 +487,9 @@ class MessageActivity : AppCompatActivity() {
   
 <summary>前回との差分</summary>
   
-  [diff](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/a5b3d5b06e8320f4e550869fadad28230dbb3563)
+  `RegisterActivity`で余分な画面遷移処理を削除し忘れておりました。２つ目のコミットで削除しております。<br>
+  [仮のアイテムを表示するまで](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/a5b3d5b06e8320f4e550869fadad28230dbb3563) <br>
+  [データベースから情報を取得してリスト表示](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/9e79683c11f00fd0be34c77ac03f4fe1321a1555)
   
 </details>
 
