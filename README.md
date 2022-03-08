@@ -145,7 +145,7 @@
 ![session3 2-message-row-result](https://user-images.githubusercontent.com/57338033/156975469-b19a551e-569a-4154-abb2-deb4f4c950ff.png)
 
 ## Adaptorの実装
-- 右のバーで右クリック → `New` → `Kotlin Class/File`を選択
+- 左のバーで右クリック → `New` → `Kotlin Class/File`を選択
 - `MessageAdapter`という名前でファイルを作成
 - 以下の内容を追加しましょう
 
