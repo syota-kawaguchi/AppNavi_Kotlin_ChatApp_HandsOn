@@ -1,262 +1,203 @@
 # アプリナビ Kotlin HandsOn
 
-## 3.2　メッセージ画面の作成
-今回は`Status Bar`にサインアウトボタンを追加し、画面にリストを表示します。
+## 3.2　データベースへ登録・MessageActivityのリストに反映
+今回はデータベースにユーザー情報を登録し、MessageActivityのリストに反映させます。
 
-## サインアウトボタンを表示する。
-- 以下のように`Status Bar`にサインアウトボタンを追加します。
-<br>画像<br>
-- これを実装するにあたってMenuを用います。
-- `app/res`直下に`menu`フォルダーを作成しましょう。`app/res`の上にマウスをあわせた状態で右クリックし、`New`→`Directory`でフォルダーを追加できます。
-- 作成した`menu`フォルダーに`nav_menu.xml`を作成しましょう。`menu`フォルダーにマウスを合わせた状態で右クリックし、`New`→`Menu Resource File`で追加できます。
-- 追加できましたら作成したファイルを開きましょう。ViewモードをCodeに切り替え、下記のように内容を書き換えます。
+## Realtime Databaseの準備
+- Firebaseを開き、`Realtime Database`を選択します。
+- `データベースを作成`を選択します。ロケーションはどこでもいいです。次へを選択します。
+- `テストモードで開始する`にチェックを入れ有効にします。
+- Firebase側は完了です。
 
-```xml
-  <?xml version="1.0" encoding="utf-8"?>
-  <menu xmlns:app="http://schemas.android.com/apk/res-auto"
-      xmlns:android="http://schemas.android.com/apk/res/android">
+![session3 3-done-set-up-realtime-database](https://user-images.githubusercontent.com/57338033/156995615-ee744de0-7584-4b0b-9466-e18bacc2ac06.png)
 
-      <item android:id="@+id/menu_sign_out"
-          android:title="Sign Out"
-          app:showAsAction="ifRoom" />
-  </menu>
+- 次にプロジェクト側の設定をします。
+- `build.gradle(Module)`を開き、`dependencies`に以下の行を追加し、`Sync Now`をクリックしましょう。
+
+```
+  implementation 'com.google.firebase:firebase-database-ktx'
 ```
 
-- 書き換えが完了しましたらViewモードをDesingに切り替えましょう。下記のように`Status bar`の右に`SIGN OUT`という文字列が表示されていればOKです。
+## Firebase Storageの準備
+- Firebaseを開き、`Storage`を選択します。
+- `始める`を選択します。
+- `テストモードで開始する`にチェックをいれ次へを選択します。
+- ロケーションはそのままでいいです。完了をクリックしましょう。
 
-![session3 2-add-nav-menu](https://user-images.githubusercontent.com/57338033/156949557-75f8a938-cd36-47b9-9f03-db4b3210868c.png)
+![session3 3-done-set-up-storage](https://user-images.githubusercontent.com/57338033/156995649-218644e1-4d24-4032-8e5f-d840fe952c71.png)
 
-- 続いて`SIGN OUT`がタップされたときの処理を追加します。
-- `MessageActivity`を開き、以下の緑色のハイライトを追加しましょう。
+- 次にプロジェクト側を編集します。
+- `build.gradle(Module)`を開き、`dependencies`に以下の行を追加し、`Sync Now`をクリックしましょう。
 
-```diff
-  package com.example.handsonchatapp
-+ import android.content.Intent
-  import androidx.appcompat.app.AppCompatActivity
-  import android.os.Bundle
-+ import android.view.Menu
-+ import android.view.MenuItem
-+ import com.google.firebase.auth.FirebaseAuth
-
-  class MessageActivity : AppCompatActivity() {
-      override fun onCreate(savedInstanceState: Bundle?) {
-          super.onCreate(savedInstanceState)
-          setContentView(R.layout.activity_message)
-      }
-+
-+     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-+         if (item?.itemId == R.id.menu_sign_out){
-+             FirebaseAuth.getInstance().signOut()
-+             val intent = Intent(this, RegisterActivity::class.java)
-+             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-+             startActivity(intent)
-+         }
-+
-+         return super.onOptionsItemSelected(item)
-+     }
-+
-+     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-+         menuInflater.inflate(R.menu.nav_menu, menu)
-+         return super.onCreateOptionsMenu(menu)
-+     }
-  }
+```
+  implementation 'com.google.firebase:firebase-storage-ktx'
 ```
 
-- ここまでできましたら一度実行し、`SIGN OUT`をタップしましょう。ログアウトし、登録画面に遷移しましたらOKです。
-- ここでコードの説明をします。
-- ～説明～
-
-## RecyclerViewを配置する
-
-つづいてリスト表示を実装します。以下の画面のように`MessageActivity`にUser一覧を表示します。
-
-![session3 2-user-list-view-sample](https://user-images.githubusercontent.com/57338033/156951341-a5f1afe0-7bfc-422c-a3be-1febdfef19c7.png)
-
-- まずは`activity_message`を編集します。
-- `Palette`から`RecyclerView`をドラッグ＆ドロップし、以下のように設定します。Constraintの設定で`parent`と表記していますが、画面端に合わせることと同義です。
-  - `layout_widht` : `0dp`
-  - `layout_height` : `0dp`
-  - Constraint left : `parent`
-  - Constraint right : `parent`
-  - Constraint top : `parent`
-  - Constraint bottom : `parent`
-  - `id` : `recyclerView_message`
-- ![session3 2-add-recycler-view](https://user-images.githubusercontent.com/57338033/156955835-d3b480b4-2557-433f-8f18-3c0be3d34396.png)
-
-## アイテムの実装
-
-- つづいてリストに表示されるアイテムを実装していきます。
-- 最初にレイアウトを作ります。`layout`フォルダーに`message_row`という名前でxmlファイルを作成しましょう。
-- 追加できましたらParentの高さを変更します。Component Treeを見ると１つだけViewがあると思います。このViewの高さを`100dp`に設定します。
-
-![session3 2-change-parent-height](https://user-images.githubusercontent.com/57338033/156959006-10f1a90c-cb9e-40c4-a2da-dbfd5d2577fe.png)
-
-- ImageViewを追加し、以下のように設定します。(Avatorは何でもいいです)
-- 以下のよう`imageView`の大きさを設定します。
-  - `layout_width` : `64dp`
-  - `layout_height` : `64dp`
-- 下図のようにconstraintを設定します。
-
-![session3 2-set-imageview-constraint](https://user-images.githubusercontent.com/57338033/156960545-9398b07f-3b0c-4f41-9b69-475585906055.png)
-
-- `merginStart`を`16dp`に設定します。
-- `id`を`userimage_imageview_message`に設定します。
-
-- 続いて`textview`２つ追加します。以降一方を`username`、もう一方を`latestmessage`と呼びます。
-- 下図のように`username`のconstraintを設定します。少し見づらいですが、`username`のボトムのconstraintは`latestmessage`のトップにドラッグ＆ドロップします。
-
-![session3 2-set-username-constraint](https://user-images.githubusercontent.com/57338033/156965245-69d3075b-5dcf-4818-a72c-0665005422f8.png)
-
-- 下図のように`latestmessage`のconstraintを設定します。
-
-![session3 2-set-latestmessage-constraint](https://user-images.githubusercontent.com/57338033/156969719-a85fa5a8-5bd4-4187-84ac-f24943625ee4.png)
-
-- [チェーン](https://developer.android.com/training/constraint-layout?hl=ja#constrain-chain)を設定します。
-- チェーンはリンクさせたViewを垂直または水平方向に制約をつけて配置してくれます。
-- `username`と`latestmessage`を選択した状態で右クリックし、`Chains`→`Create Vertical Chain`を選択します。
-
-![image](https://user-images.githubusercontent.com/57338033/156970752-dc5ee368-7602-438a-b273-5fd04c660ce5.png)
-
-- その後２つ選択されている状態で再度右クリックして`Chains`→`Vertical Chain Style`→`packed`を選択しましょう。以下のような画面になっていればOKです。
-
-![image](https://user-images.githubusercontent.com/57338033/156970981-2705c7f0-0ea6-4508-bed8-a6e9aca04576.png)
-
-- `username`を以下の設定にします。
-  - `id` : `username_textview_message`
-  - `text` : `username`
-  - `margin`
-    - `Start` : `16dp`
-    - `Bottom` : `8dp`
-  - `textStyle` : `bold`
-  - `text size`: `16sp`
-- `latest message`を以下の設定にします。
-  - `id` : `latestmessage_textview_message`
-  - `text` : `latest message`
-  - `layout_width` : `0dp`
-  - `margin`
-    - `Start` : `16dp`
-    - `End` : `8dp`
-  - `text size` : `16sp`
-- ViewモードをCodeに変更し、`ImageView`を`de.hdodenhof.circleimageview.CircleImageView`に書き換えます。
-
-- 以下のような画面になっていればOKです。
-
-![session3 2-message-row-result](https://user-images.githubusercontent.com/57338033/156975469-b19a551e-569a-4154-abb2-deb4f4c950ff.png)
-
-## Adaptorの実装
-- 右のバーで右クリック → `New` → `Kotlin Class/File`を選択
-- `MessageAdapter`という名前でファイルを作成
-- 以下の内容を追加しましょう
+## ユーザー情報の保存
+- ユーザー登録時にユーザー情報を保存するようにします。
+- 保存するにあたって`User`クラスを定義します。
+- `New` → `Kotlin Java/Class`を`User`という名前で作成します。
+- `User`ファイルを以下のようにします。
 
 ```kotlin
   package com.example.handsonchatapp
-  
-  import android.view.LayoutInflater
-  import android.view.View
-  import android.view.ViewGroup
-  import androidx.recyclerview.widget.RecyclerView
-  import com.example.handsonchatapp.databinding.MessageRowBinding
-  
-  class MessageAdapter(private val messageItems: List<MessageItem>, private val listener : ListListener) :        RecyclerView.Adapter<MessageViewHolder>() {
-  
-  interface ListListener {
-      fun onClickItem(tappedView: View, messageItem: MessageItem)
-                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
-          val itemBinding = MessageRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-          return MessageViewHolder(itemBinding)
-      }
-      
-      override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
-          holder.bind(messageItems[position], listener)
-      }
-      
-      override fun getItemCount(): Int = messageItems.size
-  }
-  
-  class MessageViewHolder(private val itemBinding: MessageRowBinding) : RecyclerView.ViewHolder(itemBinding.root) {
-      fun bind(item: MessageItem, listener: MessageAdapter.ListListener) {
-          itemBinding.usernameTextviewMessage.text = item.username
-          itemBinding.latestmessageTextviewMessage.text = item.message
-          val userImage = itemBinding.userimageImageviewMessage
-          itemBinding.root.setOnClickListener {
-              listener.onClickItem(it, item)
-          }
-      }
-  }
-  
-  class MessageItem(val username: String, val message: String, val progileImageUrl: String) {
+    class User(val uid: String, val username: String, val profileImageUrl: String){
       constructor() : this("", "", "")
   }
 ```
 
-## List表示する
-- message画面でリスト表示を実装します。
-- `MessageActivity`を開きます。
-- 以下の内容を追加しましょう
+- 続いて`RegisterActivity`を開き、以下のように編集します。赤のハイライトは削除で、緑のハイライトは追加してください。
 
-```kotlin
-package com.example.handsonchatapp
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.handsonchatapp.databinding.ActivityMessageBinding
-import com.google.firebase.auth.FirebaseAuth
-class MessageActivity : AppCompatActivity() {
-    private val TAG = "Message Activity"
-    private lateinit var binding : ActivityMessageBinding
-    var recyclerView: RecyclerView? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMessageBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
-        recyclerView = binding.recyclerViewMessage
-        val messageItems = mutableListOf<MessageItem>()
-        messageItems.add(MessageItem("username", "Hello world", ""))
-        messageItems.add(MessageItem("username", "Hello world", ""))
-        messageItems.add(MessageItem("username", "Hello world", ""))
-        messageItems.add(MessageItem("username", "Hello world", ""))
-        recyclerView?.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = MessageAdapter(
-                messageItems,
-                object : MessageAdapter.ListListener {
-                    override fun onClickItem(tappedView: View, messageItem: MessageItem) {
-                    }
-                }
-            )
-        }
-    }
-    
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_sign_out){
-            FirebaseAuth.getInstance().signOut()
-            val intent = Intent(this, RegisterActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        }
-        return super.onOptionsItemSelected(item)
-    }
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.nav_menu, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-}
-```
+```diff
+  package com.example.handsonchatapp
+  import android.app.Activity
+  import android.content.Intent
++ import android.net.Uri
+  import androidx.appcompat.app.AppCompatActivity
+  import android.os.Bundle
+  import android.provider.MediaStore
+  import android.util.Log
+  import android.widget.Toast
+  import com.example.handsonchatapp.databinding.ActivityRegisterBinding
+  import com.google.firebase.auth.FirebaseAuth
++ import com.google.firebase.database.FirebaseDatabase
++ import com.google.firebase.storage.FirebaseStorage
++ import java.util.*
 
-- 追加できましたら実行してみましょう。
-- 下図のようにユーザー名にusername、メッセージにHello worldと表記されたアイテムが４つ表示されていればOKです。
+  class RegisterActivity : AppCompatActivity() {
+        private lateinit var binding : ActivityRegisterBinding
+        
+        private val TAG = "RegisterActivity"
++
++       var selectPhotoUri: Uri? = null
 
-![session3 2-user-list-view-result](https://user-images.githubusercontent.com/57338033/156992572-a441847d-0a2b-4dc9-a806-252fbf0e28e0.png)
+        override fun onCreate(savedInstanceState: Bundle?) {
+          super.onCreate(savedInstanceState)
+          
+          binding = ActivityRegisterBinding.inflate(layoutInflater)
+          val view = binding.root
+          setContentView(view)
+          
+          binding.registerButtonRegister.setOnClickListener {
+              performRegister()
+          }
+          
+          binding.haveAccountTextRegister.setOnClickListener {
+              val intent = Intent(this, LoginActivity::class.java)
+              startActivity(intent)
+              Log.d(TAG, "try to show login activity")
+          }
+          
+          binding.selectPhotoButtonRegister.setOnClickListener {
+              Log.d(TAG, "Try to show photo selector")
+              val intent = Intent(Intent.ACTION_PICK)
+              intent.type = "image/*"
+              startActivityForResult(intent, 0)
+          }
+      }
+      
+      private fun performRegister() {
+          val email = binding.emailEdittextRegister.text.toString();
+          val password = binding.passwordEdittextRegister.text.toString();
+          
+          if (email.isEmpty() || password.isEmpty()) {
+              Toast.makeText(this, "Please enter text in email or password", Toast.LENGTH_SHORT).show()
+              return
+          }
+          
+          Log.d(TAG, "Email is: ${email}")
+          Log.d(TAG, "password is: ${password}")
+          FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+              .addOnCompleteListener{
+                  if (!it.isSuccessful) {
+                      Toast.makeText(this, "Failed to create user", Toast.LENGTH_SHORT).show()
+                      return@addOnCompleteListener
+                  }
+                  //else if successful
+                  Log.d(TAG, "Successfully created user with uid: ${it.result.user?.uid}")
+-                val intent = Intent(this, MessageActivity::class.java)
+-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+-                startActivity(intent)
++
++                 uploadImageToFirebaseStorage()
+              }
+              .addOnFailureListener{
+                  //emailのformatが違ったら実行
+                  Log.d(TAG, "failed to create user message ${it.message}")
+                  Toast.makeText(this, "Failed to create user", Toast.LENGTH_SHORT).show()
+              }
+      }
+      
++     private fun uploadImageToFirebaseStorage() {
++         if (selectPhotoUri == null) {
++             Toast.makeText(this, "please select an Image", Toast.LENGTH_SHORT).show()
++             return
++         }
++
++         val filename = UUID.randomUUID().toString()
++         val ref = FirebaseStorage.getInstance().getReference("image/$filename")
++
++         ref.putFile(selectPhotoUri!!)
++             .addOnSuccessListener {
++                 Log.d(TAG, "Successfully uploaded image:${it.metadata?.path}")
++
++                 ref.downloadUrl.addOnSuccessListener {
++                     Log.d(TAG, "File location :$it")
++
++                     saveUserToFirebaseDatabase(it.toString())
++                 }
++            }
++            .addOnFailureListener {}
++
++         val intent = Intent(this, MessageActivity::class.java)
++         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
++         startActivity(intent)
++     }
++
++     private fun saveUserToFirebaseDatabase(profileImageUrl: String) {
++         val uid = FirebaseAuth.getInstance().uid ?: ""
++         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
++
++         val user = User(uid, binding.usernameEdittextRegister.text.toString(), profileImageUrl)
++
++         ref.setValue(user)
++             .addOnSuccessListener {
++                Log.d(TAG, "saved the user to Firebase Database")
++
++                 val intent = Intent(this, MessageActivity::class.java)
++                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
++                 startActivity(intent)
++             }
++     }
++
+      override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+          super.onActivityResult(requestCode, resultCode, data)
+          
+          if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
+              Log.d(TAG, "Photo was selected")
+-             val uri = data.data
++             selectPhotoUri = data.data
+-             val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
++             val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectPhotoUri)
+              binding.circleViewRegister.setImageBitmap(bitmap)
+              binding.selectPhotoButtonRegister.alpha = 0f
+          }
+      }
+  }
+  
+- 追加できましたら一度FirebaseのAuthenticationを開き、今まで登録してきたユーザーをすべて削除します。
+- 削除できましたら、アプリを実行してみましょう。ユーザー登録画面からユーザーを登録してみましょう。
+- 下図のようにログが出力され、画面が遷移されることを確認できましたでしょうか？
 
-今回はここまでです。<br>
-現状仮のリストを表示しています。次はデータベースにユーザーを保存し、データベースからユーザーの情報を取得してListに表示します。
+![session3 3-done-user-register](https://user-images.githubusercontent.com/57338033/157011261-2c28ce01-a172-4c85-acaa-49acd230d54d.png)
+
+- 確認できましたらFirebaseを見てみましょう。下図のように保存されていればOKです。
+
+![session3 3-result-realtime-database](https://user-images.githubusercontent.com/57338033/157013724-76ff1518-d6af-4e5d-b1a0-310b8b3e1a02.png)
+
+![session3 3-result-storage](https://user-images.githubusercontent.com/57338033/157013738-86c292f9-4a77-4ee3-adb6-2b5e42076af5.png)
+
+今回はここまでです。次はチャット画面・機能の実装をしていきます。
 
 ## Diff
 
@@ -264,8 +205,6 @@ class MessageActivity : AppCompatActivity() {
 
 <summary>前回との差分</summary>
 
-[diff](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/a5b3d5b06e8320f4e550869fadad28230dbb3563)
+  [diff](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/134df6d7545bbbeea33f098af15348100bea0620)
   
 </details>
-
-## Next
