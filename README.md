@@ -1,150 +1,302 @@
 # アプリナビ Kotlin HandsOn
 
-## 4.1 チャット画面の作成・画面遷移
+## 4.2 チャット画面の作成・画面遷移
 
-session4からチャット画面・機能を作成していきます。
+今回はチャットのレイアウトを作成し、`ChatLogActivity`に表示させます。
 
-## ChatLogActivityを追加する。
-- 右のメニューバーで`右クリック` → `New` → `Activity` → `Empty Activity`を選択し、`ChatLogActivity`という名前で作成
+## チャットのレイアウトの作成
 
-![session4 1-add-chat-log-activity](https://user-images.githubusercontent.com/57338033/157045995-e4332aa9-15f8-4217-a94b-5234cf3cfb90.png)
+- まずdrawableファイルを作成します。`new` → `Drawable Resource File`で`chat_log_from_background`という名前でファイルを作成しましょう。
+- 追加できましたら以下のように編集します。
 
-- `ChatLogActivity.kt`と`activity_chat_log.xml`が生成されて入れればOKです。
-
-![image](https://user-images.githubusercontent.com/57338033/157046211-a40ff272-26b6-45a2-b112-50c59c01a595.png)
-
-
-## MessageActivityと行き来する
-- `LatestMessageActivity`を開き、以下を追加します。
-
-```diff
-...略
-  private fun refreshRecyclerView(messageItems : List<MessageItem>) {
-        recyclerView?.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = MessageAdapter(
-                messageItems,
-                object : MessageAdapter.ListListener {
-                    override fun onClickItem(tappedView: View, messageItem: MessageItem) {
-+                       val intent = Intent(tappedView.context, ChatLogActivity::class.java)
-+                       startActivity(intent)
-                    }
-                }
-            )
-        }
-    }
-...略
+```xml
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="10dp"/>
+            <solid android:color="@color/base_color_blue"/>
+        </shape>
+    </item>
 ```
 
-- `AndroidManifest.xml`を開き、以下の内容を追加します。`ChatLogActivity`のactivity属性は`ChatLogActivity`を生成した際に自動で入力されています。
+- 続いてlayoutファイルを追加します。`new` → `layout Resource File`で`chat_from_row`という名前でファイルを作成しましょう。
+- 追加できましたら`Palette`から`ImageView`を配置し、以下のように設定します。
+  - `id` : `imageView_chat_log`
+  - `layout_width` : `50dp`
+  - `layout_height` : `50dp`
+  - constraint
+    - right : 画面右端
+    - top : 画面上端
+  - `margin`
+    - `top` : `8dp`
+    - `right` : `8dp`
+  - ViewモードをCodeに変更し、`ImageView`を`de.hdodenhof.circleimageview.CircleImageView`に書き換え
+- 次に`TextView`を配置します。
+  - `id` : `textview_chat_log`
+  - constraint
+    - right : `imageView_chat_log`の左
+    - top : `imageView_chat_log`の上
+  - `margin right` : `8dp`
+  - `background` : `@drawable/chat_log_from_background`
+  - `maxWidth` : `240dp`
+  - `padding` : 16dp
+  - `text` : "This is my message that will wrap into multiple lines and keep on going"
+  - `textColor` : `@color/white`
+- 以下のような画面になりましたらOKです。
 
-```
-  <?xml version="1.0" encoding="utf-8"?>
-  <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.example.handsonchatapp">
+![session4 2-chat-from-row-layout](https://user-images.githubusercontent.com/57338033/157143270-8ce4d370-0de5-403d-a141-1a1f00108e18.png)
 
-      <application
-          android:allowBackup="true"
-          android:icon="@mipmap/ic_launcher"
-          android:label="@string/app_name"
-          android:roundIcon="@mipmap/ic_launcher_round"
-          android:supportsRtl="true"
-          android:theme="@style/Theme.HandsOnChatApp">
-          <activity
-              android:name=".ChatLogActivity"
-              android:exported="false" >
-              <meta-data
-                  android:name="android.support.PARENT_ACTIVITY"
-                  android:value=".MessageActivity" />
-          </activity>
-          <activity
-              android:name=".MessageActivity"
-              android:exported="false" />
-          <activity
-              android:name=".LoginActivity"
-+             android:exported="false">
-+             <meta-data
-+                 android:name="android.support.PARENT_ACTIVITY"
-+                 android:value=".RegisterActivity" />
-          </activity>
-          <activity
-              android:name=".RegisterActivity"
-              android:exported="true">
-              <intent-filter>
-                  <action android:name="android.intent.action.MAIN" />
+- `chat_to_row`の実装をしていきます。
+- まず色を追加します。valuesフォルダーの`colors`ファイルを開き、以下の行を追加します。
 
-                  <category android:name="android.intent.category.LAUNCHER" />
-              </intent-filter>
-          </activity>
-      </application>
-
-  </manifest>
+```xml
+    <color name="chat_to_row_background">#E7E6E9</color>
 ```
 
-- ここまで入力できましたら実行してみましょう。
-- `MessageActivity`でアイテムをタップすると`ChatLogActivity`に遷移し、`ChatLogActivity`の`Status bar`に表示されている戻るボタンを押すと`MessageActivity`に戻ってくることが確認できればOKです。
-
-## レイアウトの作成
-- `ChatLogActivity`のレイアウトを作成します。最初にレイアウトで使うxmlファイルを作成します。
-- `res/drawable`の上にマウスを合わせて`右クリック`し、`New` → `Drawable Resource File`を選択し、`edittext_chatlog_frame`という名前でxmlファイルを作成します。
-- 作成したxmlファイルに以下の内容を追加します。
+- drawableフォルダーの`chat_log_from_background`をコピペします。ペーストの際、ファイル名を求められるので、`chat_log_to_background`とします。
+- `chat_log_to_background`を以下のように編集します。
 
 ```xml
   <?xml version="1.0" encoding="utf-8"?>
   <selector xmlns:android="http://schemas.android.com/apk/res/android">
       <item>
           <shape android:shape="rectangle">
-              <stroke
-                  android:color="@android:color/darker_gray"
-                  android:width="2dp"
-                  />
               <corners android:radius="10dp"/>
-              <solid android:color="@color/white"/>
+              <solid android:color="@color/chat_to_row_background"/>
           </shape>
       </item>
   </selector>
 ```
-- 続いて`ChatLogActivity`のレイアウトを作成します。
-- `Palette`から`Button`を画面に配置し、以下のように設定します。
-  - `id` : `send_button_chatlog`
-  - `layout_height` : `50dp`
-  - `margin`
-    - `left` : `8dp`
-    - `bottom` : `8dp`
-  - `text` : `送信`
-  - constraint
-    - bottom : 画面下端
-    - right : 画面右端
-- `Palette`から`PlaneText`を画面に配置し、以下のように設定します。
-  - `id` : `edittext_chatlog`
-  - `layout_width` : `0dp`
-  - `layout_height` : `50dp`
-  - `margin`
-    - `right` : `8dp`
-    - `left` : `8dp`
-    - `bottom` : `8dp`
-  - constraint
-    - left : 画面左端
-    - right : `send_button_chatlog`の左
-    - bottom : 画面下端
-  - `padding left` : `8dp`
-  - `hint` : `Enter Message`
-  - `text`を削除
-  - `background`:`@drawable/edittext_chatlog_frame`
-- `Palette`から`RecyclerView`を配置し、以下のように設定します。
-  - `id` : `recyclerview_chatlog`
-  - `layout_width` : `0dp`
-  - `layout_height` : `0dp`
-  - `marginBottom` : `8dp`
-  - constraint
-    - left : 画面左端
-    - right : 画面右端
-    - Top : 画面上端
-    - bottom : edittext_chatlogの上
-- 以下のような画面になっていればOKです。
 
-![session4 1-chat-log-layout](https://user-images.githubusercontent.com/57338033/157075063-94a70017-ac70-4d99-af78-0599298bcfd8.png)
+- layoutファイルの`chat_from_row`も同様にコピペしましょう。ファイル名は`chat_to_row`とします。
+- `chat_to_row`を以下のように設定します。
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imageView_chat_log"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/textview_chat_log"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/chat_log_from_background"
+        android:maxWidth="240dp"
+        android:padding="16dp"
+        android:text="This is my message that will wrap into multiple lines and keep on going"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@+id/imageView_chat_log"
+        app:layout_constraintTop_toTopOf="@+id/imageView_chat_log" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+- 一度水平方向のconstraintの関係を削除し、画像の水平方向のconstraintを設定後、テキストのconstraintを設定し、最後にmarginを設定してあげるといい感じになります。
+
+![session4 2-chat-to-row-layout](https://user-images.githubusercontent.com/57338033/157144423-89899841-b14c-42fa-884c-81feb8cb6073.png)
+
+- 続いてAdapterを実装します。
+- Adapterを実装するにあたって`MessageAdapter`と重複する処理があるので、`New` → `Kotlin Class/File`から`AdapterUtil`というファイルを作成し、以下のように編集します。
+
+```kotlin
+  package com.example.handsonchatapp
+
+  import android.view.View
+
+  class AdapterUtil {
+      interface ListListener<T> {
+          fun onClickItem(tappedView: View, messageItem: T)
+      }
+  }
+```
+
+続いて`MessageAdapter`も以下のように編集します。
+
+- `New` → `Kotlin Class/File`から`AdapterUtil`という名前でファイルを作成します。
+- 以下のように編集します。
+
+```kotlin
+  package com.example.handsonchatapp
+
+  import android.view.View
+
+  class AdapterUtil {
+      interface ListListener<T> {
+          fun onClickItem(tappedView: View, messageItem: T)
+      }
+  }
+```
+
+- `MessageAdapter`を以下のように編集します。
+
+```diff
+  package com.example.handsonchatapp
+
+  import android.view.LayoutInflater
+- import android.view.View
+  import android.view.ViewGroup
+  import androidx.recyclerview.widget.RecyclerView
+  import com.example.handsonchatapp.databinding.MessageRowBinding
+  import com.squareup.picasso.Picasso
+
+- class MessageAdapter(private val messageItems: List<MessageItem>, private val listener : ListListener) : RecyclerView.Adapter<MessageViewHolder>() {
+-
+-   interface ListListener {
+-       fun onClickItem(tappedView: View, messageItem: MessageItem)
+-   }
++ class MessageAdapter(private val messageItems: List<MessageItem>, private val listener : AdapterUtil.ListListener<MessageItem>) : RecyclerView.Adapter<MessageViewHolder>() {
+
+      override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
+          val itemBinding = MessageRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+          return MessageViewHolder(itemBinding)
+      }
+
+      override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
+          holder.bind(messageItems[position], listener)
+      }
+
+      override fun getItemCount(): Int = messageItems.size
+  }
+
+  class MessageViewHolder(private val itemBinding: MessageRowBinding) : RecyclerView.ViewHolder(itemBinding.root) {
+-     fun bind(item: MessageItem, listener: MessageAdapter.ListListener) {
++     fun bind(item: MessageItem, listener: AdapterUtil.ListListener<MessageItem>) {
+          itemBinding.usernameTextviewMessage.text = item.username
+          itemBinding.latestmessageTextviewMessage.text = item.message
+          val userImage = itemBinding.userimageImageviewMessage
+          Picasso.get().load(item.progileImageUrl).into(userImage)
+          itemBinding.root.setOnClickListener {
+              listener.onClickItem(it, item)
+          }
+      }
+  }
+
+  class MessageItem(val username: String, val message: String, val progileImageUrl: String) {
+      constructor() : this("", "", "")
+  }
+```
+
+- `MessageActivity`からエラーが出ると思うので、赤のハイライト(エラー部分)を消し、緑のハイライトに修正しましょう
+
+```diff
+- object : MessageAdapter.ListListener {
++ object : AdapterUtil.ListListener<MessageItem> {
+```
+
+- ChatLogのAdapterを実装していきます。
+- `New` → `Kotlin Class/File`から`ChatLogAdapter`という名前でファイルを作成し、以下のように編集します。
+
+```kotlin
+  package com.example.handsonchatapp
+
+  import android.view.LayoutInflater
+  import android.view.View
+  import android.view.ViewGroup
+  import android.widget.ImageView
+  import android.widget.TextView
+  import androidx.recyclerview.widget.RecyclerView
+  import com.squareup.picasso.Picasso
+
+  class ChatLogAdapter(private val list: List<ChatLogItem>, private val listener: AdapterUtil.ListListener<ChatLogItem>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+      override fun getItemViewType(position: Int): Int = if (list[position].isFrom) 0 else 1
+
+      override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+          val layout : Int = if (viewType == 0) R.layout.chat_from_row else R.layout.chat_to_row
+          val itemView: View = LayoutInflater.from(parent.context).inflate(layout, parent, false)
+          return ChatLogViewHolder(itemView, viewType)
+      }
+
+      override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+          holder.itemView.findViewById<TextView>(R.id.textview_chat_log).text = list[position].message
+          val url = list[position].profileImageUrl
+          val targetImageView = holder.itemView.findViewById<ImageView>(R.id.imageView_chat_log)
+          if (url != null && url != "") {
+              Picasso.get().load(url).into(targetImageView)
+          }
+          holder.itemView.setOnClickListener {
+              listener.onClickItem(it, list[position])
+          }
+      }
+
+      override fun getItemCount(): Int = list.size
+  }
+
+  class ChatLogViewHolder(itemView: View, viewType: Int) : RecyclerView.ViewHolder(itemView) {
+      val chatLog : TextView = itemView.findViewById<TextView>(R.id.textview_chat_log)
+      val profileImageUrl : ImageView = itemView.findViewById<ImageView>(R.id.imageView_chat_log)
+  }
+
+  class ChatLogItem(val username: String, val message: String, val profileImageUrl: String, val isFrom: Boolean) {
+      constructor() : this("", "", "", false)
+  }
+```
+
+- ここまで入力できましたら`ChatLogActivity`を編集してダミーメッセージを表示させます。以下のように編集しましょう。
+
+```kotlin
+  package com.example.handsonchatapp
+
+  import androidx.appcompat.app.AppCompatActivity
+  import android.os.Bundle
+  import android.view.View
+  import androidx.recyclerview.widget.LinearLayoutManager
+  import androidx.recyclerview.widget.RecyclerView
+  import com.example.handsonchatapp.databinding.ActivityChatLogBinding
+
+  class ChatLogActivity : AppCompatActivity() {
+
+      private val TAG = "ChatLogActivity"
+
+      private lateinit var binding : ActivityChatLogBinding
+
+      private var recyclerView : RecyclerView? = null
+
+      override fun onCreate(savedInstanceState: Bundle?) {
+          super.onCreate(savedInstanceState)
+          setContentView(R.layout.activity_chat_log)
+
+          binding = ActivityChatLogBinding.inflate(layoutInflater)
+          val view = binding.root
+          setContentView(view)
+
+          recyclerView = binding.recyclerviewChatlog
+
+          val chatLogs = mutableListOf<ChatLogItem>()
+          chatLogs.add(ChatLogItem("username", "Hello world", "", true))
+          chatLogs.add(ChatLogItem("username", "Hello world", "", false))
+          chatLogs.add(ChatLogItem("username", "Hello world", "", true))
+          chatLogs.add(ChatLogItem("username", "Hello world", "", false))
+
+          recyclerView?.apply {
+              setHasFixedSize(true)
+              layoutManager = LinearLayoutManager(context)
+              adapter = ChatLogAdapter(
+                  chatLogs,
+                  object : AdapterUtil.ListListener<ChatLogItem> {
+                      override fun onClickItem(tappedView: View, chatLogItem: ChatLogItem) {}
+                  }
+              )
+          }
+      }
+  }
+```
+
+- ここまでできましたら実行してみましょう。以下のような画面になればOKです。
+
+![session4 2-chat-log-result](https://user-images.githubusercontent.com/57338033/157149865-4beab181-4979-4142-8d89-167aac89aee9.png)
 
 
 
@@ -160,3 +312,4 @@ session4からチャット画面・機能を作成していきます。
 </details>
 
 ## Next
+
