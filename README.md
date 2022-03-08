@@ -5,7 +5,9 @@
 
 ## サインアウトボタンを表示する。
 - 以下のように`Status Bar`にサインアウトボタンを追加します。
-<br>画像<br>
+
+![session3 2-add-menu](https://user-images.githubusercontent.com/57338033/157197353-36539e9f-77b4-4764-8f18-2c272cfc762d.png)
+
 - これを実装するにあたってMenuを用います。
 - `app/res`直下に`menu`フォルダーを作成しましょう。`app/res`の上にマウスをあわせた状態で右クリックし、`New`→`Directory`でフォルダーを追加できます。
 - 作成した`menu`フォルダーに`nav_menu.xml`を作成しましょう。`menu`フォルダーにマウスを合わせた状態で右クリックし、`New`→`Menu Resource File`で追加できます。
@@ -277,9 +279,7 @@ class MessageActivity : AppCompatActivity() {
   
 <summary>前回との差分</summary>
   
-  `RegisterActivity`で余分な画面遷移処理を削除し忘れておりました。２つ目のコミットで削除しております。<br>
   [仮のアイテムを表示するまで](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/a5b3d5b06e8320f4e550869fadad28230dbb3563) <br>
-  [データベースから情報を取得してリスト表示](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/9e79683c11f00fd0be34c77ac03f4fe1321a1555)
   
 </details>
 
