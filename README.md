@@ -258,7 +258,7 @@
        }
        
        binding.selectPhotoButtonRegister.setOnClickListener {
-           Log.d(tag, "Try to show photo selector")
+           Log.d(TAG, "Try to show photo selector")
  
            val intent = Intent(Intent.ACTION_PICK)
            intent.type = "image/*"
@@ -269,7 +269,7 @@
 +       super.onActivityResult(requestCode, resultCode, data)
 +
 +       if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
-+           Log.d(tag, "Photo was selected")
++           Log.d(TAG, "Photo was selected")
 +
 +           val uri = data.data
 +
