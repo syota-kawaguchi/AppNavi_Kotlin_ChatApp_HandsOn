@@ -1,6 +1,6 @@
 # アプリナビ Kotlin HandsOn
 
-## 3.2　データベースへ登録・MessageActivityのリストに反映
+## 3.3　データベースへ登録・MessageActivityのリストに反映
 今回はデータベースにユーザー情報を登録し、MessageActivityのリストに反映させます。
 
 ## Realtime Databaseの準備
