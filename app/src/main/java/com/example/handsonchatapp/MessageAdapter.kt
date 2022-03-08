@@ -22,16 +22,16 @@ class MessageAdapter(private val messageItems: List<MessageItem>, private val li
 
 class MessageViewHolder(private val itemBinding: MessageRowBinding) : RecyclerView.ViewHolder(itemBinding.root) {
     fun bind(item: MessageItem, listener: AdapterUtil.ListListener<MessageItem>) {
-        itemBinding.usernameTextviewMessage.text = item.username
+        itemBinding.usernameTextviewMessage.text = item.user.username
         itemBinding.latestmessageTextviewMessage.text = item.message
         val userImage = itemBinding.userimageImageviewMessage
-        Picasso.get().load(item.progileImageUrl).into(userImage)
+        Picasso.get().load(item.user.profileImageUrl).into(userImage)
         itemBinding.root.setOnClickListener {
             listener.onClickItem(it, item)
         }
     }
 }
 
-class MessageItem(val username: String, val message: String, val progileImageUrl: String) {
-    constructor() : this("", "", "")
+class MessageItem(val user: User, val message: String) {
+    constructor() : this(User("", "", ""), "")
 }
