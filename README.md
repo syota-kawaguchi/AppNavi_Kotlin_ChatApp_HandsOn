@@ -1,141 +1,224 @@
 # アプリナビ Kotlin HandsOn
 
-## 5.1 メッセージ画面に最新のメッセージを表示する
-
+## 5.1 手直し
 今回は以下の画面のようにメッセージ画面にユーザーごとに最新のメッセージを表示させます。
 
-## 最新のメッセージをデータベースに保存する。
-- 前のセクションでチャット画面にて送信ボタンを押すとメッセージを`user-messages`の下のパスに保存するよう実装しました。
-- 今回はさらに送信ボタンが押されると別のパスにも保存するように実装します。
-- わざわざ同じ内容を２つ保存する理由は保存の方法が違うからです。
-- 前のセクションで追加した、データベースを参照する処理は以下のとおりです。
-
-```kotlin
-  val fromRef = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
-```
-
-- `.push()`とついているため、`setValue()`をするとデータが追加されていきます。
-- 今回は追加されるのではなく上書きで保存するように実装します。
-- データを追加するように保存すると取得する際、追加されたデータの数だけ通信量が増えます。
-- そのため、上書きでも保存することで通信量を少なく、一定に保つ事ができます。
-- `ChatLogActivity`を開き、以下の処理を追加しましょう。
+## メッセージ送信時に入力をクリア・下までスクロール
+- 送信ボタンを押すとメッセージは送信されますが入力がクリアされず、次にメッセージを入力する前に消さないといけません。
+- またメッセージが少ないとあまり気になりませんが、送信しても最新のメッセージまでスクロールされません。
+- ということでこれらを実装します。`ChatLogActivity`に以下の処理を追加しましょう。
 
 ```diff
-package com.example.handsonchatapp
+  package com.example.handsonchatapp
 
-import ...
+  import ...
 
   class ChatLogActivity : AppCompatActivity() {
 
-    private val TAG = "ChatLogActivity"
+      private val TAG = "ChatLogActivity"
 
-    private lateinit var binding : ActivityChatLogBinding
+      private lateinit var binding : ActivityChatLogBinding
 
-    private var recyclerView : RecyclerView? = null
+      private var recyclerView : RecyclerView? = null
 
-    var toUser : User? = null
+      var toUser : User? = null
 
-    val chatLogs = mutableListOf<ChatLogItem>()
+      val chatLogs = mutableListOf<ChatLogItem>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-      ...
-    }
+      override fun onCreate(savedInstanceState: Bundle?) {
+          ...
+      }
 
-    private fun refreshRecyclerView(list : List<ChatLogItem>) {
-      ...
-    }
+      private fun refreshRecyclerView(list : List<ChatLogItem>) {
+          ... 
+      }
 
-    private fun performSendMessage() {
-        val user = intent.getParcelableExtra<User>(USER_KEY)
-        val text = binding.edittextChatlog.text.toString()
-        val fromId = FirebaseAuth.getInstance().uid
-        val toId = user?.uid
+      private fun performSendMessage() {
+          val user = intent.getParcelableExtra<User>(USER_KEY)
+          val text = binding.edittextChatlog.text.toString()
+          val fromId = FirebaseAuth.getInstance().uid
+          val toId = user?.uid
 
-        if (fromId == null || toId == null || text == "") return
+          if (fromId == null || toId == null || text == "") return
 
-        val fromRef = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
-        val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
+          val fromRef = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
+          val toRef = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
 
-        val chatMessage = ChatMessage(fromRef.key!!, text, fromId, toId, System.currentTimeMillis() / 1000)
-        fromRef.setValue(chatMessage)
-            .addOnSuccessListener {
-                Log.d(TAG, "Saved our chat message: ${fromRef.key}")
-            }
-        toRef.setValue(chatMessage)
-            .addOnSuccessListener {
-                Log.d(TAG, "Saved our chat message: ${toRef.key}")
-            }
-+
-+       val latestFromRef = FirebaseDatabase.getInstance().getReference("latest-messages/$fromId/$toId")
-+       latestFromRef.setValue(chatMessage)
-+
-+       val latestToRef = FirebaseDatabase.getInstance().getReference("latest-messages/$toId/$fromId")
-+       latestToRef.setValue(chatMessage)
-    }
+          val chatMessage = ChatMessage(fromRef.key!!, text, fromId, toId, System.currentTimeMillis() / 1000)
+          fromRef.setValue(chatMessage)
+              .addOnSuccessListener {
+                  Log.d(TAG, "Saved our chat message: ${fromRef.key}")
++                 binding.edittextChatlog.text.clear()
++                 binding.recyclerviewChatlog.scrollToPosition(chatLogs.count() - 1)
+              }
+          toRef.setValue(chatMessage)
+              .addOnSuccessListener {
+                  Log.d(TAG, "Saved our chat message: ${toRef.key}")
+              }
 
-    private fun listenForMessage() {
-        ...
-    }
+          val latestFromRef = FirebaseDatabase.getInstance().getReference("latest-messages/$fromId/$toId")
+          latestFromRef.setValue(chatMessage)
+
+          val latestToRef = FirebaseDatabase.getInstance().getReference("latest-messages/$toId/$fromId")
+          latestToRef.setValue(chatMessage)
+      }
+
+      private fun listenForMessage() {
+          ...
+      }
   }
 ```
 
-- 追加できましたらチャット画面から適当にメッセージを送信してみましょう
-- 以下のようにデータベースに追加されていましたらOKです。
+- 追加できましたら実行してみましょう。メッセージをいくつか送信して送信時に入力がクリアされ、下までスクロールされればOKです。
 
-![session5 1-add-latest-messages](https://user-images.githubusercontent.com/57338033/157463056-55b96420-0f5a-44a6-a645-565b80fe709a.png)
-
-
-
-## メッセージ画面に最新のメッセージを表示する
-- 先程保存したデータベースを利用してメッセージ画面に最新のメッセージを評しさせます。
-- `build.gradle(Module)`を開き、`dependencies`の中に以下の行を追加します。
-- [coroutines](https://github.com/Kotlin/kotlinx.coroutines)・[lifecycle](https://developer.android.com/jetpack/androidx/releases/lifecycle?hl=ja)バージョンは2022年3月時点のものです。
-
-```
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
-```
-
-- `MessageActivity`に以下の処理を追加します。
+## アイコンにフレームを追加する。
+- 現状アイコンの背景が白だと後ろと同化してしまうので、あまり目立たない程度に枠を設定します。
+- `message_row.xml`を開き、以下の行を追加します。
 
 ```diff
-package com.example.handsonchatapp
+  <?xml version="1.0" encoding="utf-8"?>
+  <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/message_textview_message"
+    android:layout_width="match_parent"
+    android:layout_height="100dp">
 
-  import android.view.Menu
-  import android.view.MenuItem
-  import android.view.View
-+ import androidx.lifecycle.lifecycleScope
-  import androidx.recyclerview.widget.LinearLayoutManager
-  import androidx.recyclerview.widget.RecyclerView
-  import com.example.handsonchatapp.databinding.ActivityMessageBinding
-  import com.google.firebase.auth.FirebaseAuth
-- import com.google.firebase.database.DataSnapshot
-- import com.google.firebase.database.DatabaseError
-- import com.google.firebase.database.FirebaseDatabase
-- import com.google.firebase.database.ValueEventListener
-+ import com.google.firebase.database.*
-+ import kotlinx.coroutines.Dispatchers
-+ import kotlinx.coroutines.withContext
-+ import kotlin.coroutines.resume
-+ import kotlin.coroutines.resumeWithException
-+ import kotlin.coroutines.suspendCoroutine
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/userimage_imageview_message"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="16dp"
++       app:civ_border_width="1dp"
++       app:civ_border_color="@color/chat_to_row_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/username_textview_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:text="username"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/latestmessage_textview_message"
+        app:layout_constraintStart_toEndOf="@+id/userimage_imageview_message"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/latestmessage_textview_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp" android:text="latest message"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/userimage_imageview_message"
+        app:layout_constraintTop_toBottomOf="@+id/username_textview_message" />
+  </androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+- 同様に`chat_from_row.xml`を以下の容易編集します。
+
+```diff
+  <?xml version="1.0" encoding="utf-8"?>
+  <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imageView_chat_log"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
++       app:civ_border_width="1dp"
++       app:civ_border_color="@color/chat_to_row_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/textview_chat_log"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/chat_log_from_background"
+        android:maxWidth="240dp"
+        android:padding="16dp"
+        android:text="This is my message that will wrap into multiple lines and keep on going"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toStartOf="@+id/imageView_chat_log"
+        app:layout_constraintTop_toTopOf="@+id/imageView_chat_log" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+- `chat_to_row.xml`を以下のように編集します。
+
+```diff
+  <?xml version="1.0" encoding="utf-8"?>
+  <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imageView_chat_log"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
++       app:civ_border_width="1dp"
++       app:civ_border_color="@color/chat_to_row_background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/textview_chat_log"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/chat_log_from_background"
+        android:maxWidth="240dp"
+        android:padding="16dp"
+        android:text="This is my message that will wrap into multiple lines and keep on going"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@+id/imageView_chat_log"
+        app:layout_constraintTop_toTopOf="@+id/imageView_chat_log" />
+  </androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+- ついでにMessage画面のアイテム間にDividerを設定します。下図のように線を引きます。
+
+![session5 2-add-frame-message-activity](https://user-images.githubusercontent.com/57338033/157472431-d336005d-a1df-48ad-a342-c22f04f964e8.png)
+
+- `MessageActivity`に以下の処理を追加しましょう
+
+```diff
+  package com.example.handsonchatapp
+
+  import ...
 
   val USER_KEY = "USER_KEY"
-+
-+ suspend fun DatabaseReference.awaitGet(): DataSnapshot {
-+     return withContext(Dispatchers.IO) {
-+         suspendCoroutine { continuation ->
-+             get().addOnSuccessListener {
-+                 continuation.resume(it)
-+             }.addOnFailureListener {
-+                 continuation.resumeWithException(it)
-+             }
-+         }
-+     }
-+ }
+
+  suspend fun DatabaseReference.awaitGet(): DataSnapshot {
+      ...
+  }
 
   class MessageActivity : AppCompatActivity() {
-    companion object {
+
+      companion object {
           var currentUser: User? = null
       }
 
@@ -146,7 +229,20 @@ package com.example.handsonchatapp
       var recyclerView: RecyclerView? = null
 
       override fun onCreate(savedInstanceState: Bundle?) {
-        ...
+          super.onCreate(savedInstanceState)
+
+          binding = ActivityMessageBinding.inflate(layoutInflater)
+          val view = binding.root
+          setContentView(view)
+
+          recyclerView = binding.recyclerViewMessage
+
++         val dividerItemDecoration = DividerItemDecoration(this, LinearLayoutManager(this).orientation)
++         recyclerView?.addItemDecoration(dividerItemDecoration)
+
+          fetchCurrentUser()
+
+          listenForLatestMessage()
       }
 
       private fun fetchCurrentUser() {
@@ -154,40 +250,7 @@ package com.example.handsonchatapp
       }
 
       private fun listenForLatestMessage() {
-          val fromId = FirebaseAuth.getInstance().uid
-          val ref = FirebaseDatabase.getInstance().getReference("/users")
-
-+         lifecycleScope.launch {
-+             val usersSnapshot = ref.awaitGet()
-+             val latestMessageItems = usersSnapshot.children.mapNotNull { userSnapshot ->
-+                 val user = userSnapshot.getValue(User::class.java) ?: return@mapNotNull null
-+                 if (user.uid == currentUser?.uid) {
-+                     return@mapNotNull null
-+                 }
-+                 val latestMessageRef = FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId/${user.uid}")
-+                 val latestMessageSnapshot = latestMessageRef.awaitGet()
-+                 val latestMessage = latestMessageSnapshot.getValue(ChatMessage::class.java)
-+                 val message = latestMessage?.text ?: ""
-+                 MessageItem(user, message)
-+             }
-+             refreshRecyclerView(latestMessageItems)
-+         }
--         ref.addListenerForSingleValueEvent(object : ValueEventListener {
--             override fun onDataChange(snapshot: DataSnapshot) {
--                 val messageItems = snapshot.children.mapNotNull { userSnapshot ->
--                     val user = userSnapshot.getValue(User::class.java) ?: return@mapNotNull null
--
--                     if (user.uid == currentUser?.uid) {
--                         return@mapNotNull  null
--                     }
--
--                     MessageItem(user, "")
--                 }
--                 refreshRecyclerView(messageItems)
--           }
--
--           override fun onCancelled(error: DatabaseError) {}
--       })
+          ...
       }
 
       private fun refreshRecyclerView(messageItems : List<MessageItem>) {
@@ -204,13 +267,140 @@ package com.example.handsonchatapp
   }
 ```
 
-- 追加できましたら実行してみましょう。
-- 以下のようにメッセージ画面でユーザーアイコン・ユーザー名・最新のメッセージが表示されていましたらOKです。(メッセージがないチャットは表示されません。)
+- ここまで追加できましたら実行してみましょう。以下のようにフレームやDividerが表示されて入ればOKです。(若干見にくいですが...)
 
-![session5 1-result](https://user-images.githubusercontent.com/57338033/157465500-5e052b2f-b257-471f-b50e-14993606ac76.png)
+![session5 2-add-frame-message-activity](https://user-images.githubusercontent.com/57338033/157473072-0502b5ed-c151-45fa-822e-c65fde5ff8e2.png)
+![session5 2-add-frame-chat-log-activity](https://user-images.githubusercontent.com/57338033/157473208-c0b9c9d6-41cf-4807-a32a-716cf8274950.png)
 
-- 今回はここまでです。
-- 次で最後です。最後に手直しをします。
+## アクションバーのタイトルを変える
+
+- 最後にアクションバーのタイトルを変えましょう。
+- `RegisterActivity`を開き、以下の処理を追加します。
+
+```diff
+  package com.example.handsonchatapp
+
+  import ...
+
+  class RegisterActivity : AppCompatActivity() {
+  
+      ...
+
+      override fun onCreate(savedInstanceState: Bundle?) {
+          super.onCreate(savedInstanceState)
+
+          binding = ActivityRegisterBinding.inflate(layoutInflater)
+          val view = binding.root
+          setContentView(view)
+
++         supportActionBar?.title = "登録"
+
+          binding.registerButtonRegister.setOnClickListener {
+                performRegister()
+         }
+
+          binding.haveAccountTextRegister.setOnClickListener {
+              val intent = Intent(this, LoginActivity::class.java)
+              startActivity(intent)
+
+              Log.d(TAG, "try to show login activity")
+          }
+
+          binding.selectPhotoButtonRegister.setOnClickListener {
+              Log.d(TAG, "Try to show photo selector")
+
+              val intent = Intent(Intent.ACTION_PICK)
+              intent.type = "image/*"
+              startActivityForResult(intent, 0)
+          }
+      }
+      
+      ...
+```
+
+- `LoginActivity`を開き、以下のように編集します・
+
+```
+  package com.example.handsonchatapp
+
+  import ...
+  
+  class LoginActivity : AppCompatActivity() {
+
+      private lateinit var binding: ActivityLoginBinding
+
+      private val TAG = "LoginActivity"
+
+      override fun onCreate(savedInstanceState: Bundle?) {
+          super.onCreate(savedInstanceState)
+
+          binding = ActivityLoginBinding.inflate(layoutInflater)
+          val view = binding.root
+          setContentView(view)
+
++         supportActionBar?.title = "ログイン"
+
+          ...
+      }
+  }
+
+```
+
+- `MessageActivity`を開き、以下のように編集します。
+
+```diff
+  package com.example.handsonchatapp
+
+  import ...
+
+  val USER_KEY = "USER_KEY"
+
+  suspend fun DatabaseReference.awaitGet(): DataSnapshot {
+      ...
+  }
+
+  class MessageActivity : AppCompatActivity() {
+
+      companion object {
+          var currentUser: User? = null
+      }
+
+      private val TAG = "Message Activity"
+
+      private lateinit var binding : ActivityMessageBinding
+
+      var recyclerView: RecyclerView? = null
+
+      override fun onCreate(savedInstanceState: Bundle?) {
+          super.onCreate(savedInstanceState)
+
+          binding = ActivityMessageBinding.inflate(layoutInflater)
+          val view = binding.root
+          setContentView(view)
+
+          recyclerView = binding.recyclerViewMessage
+
++         supportActionBar?.title = "メッセージ"
+
+          val dividerItemDecoration =
+              DividerItemDecoration(this, LinearLayoutManager(this).orientation)
+          recyclerView?.addItemDecoration(dividerItemDecoration)
+
+          fetchCurrentUser()
+
+          listenForLatestMessage()
+      }
+
+      ...
+```
+
+- 追加できましたら実行してみましょう。アクションバーにそれぞれ指定した文字が表示されていればOKです 
+
+![session5 2-edit-actionbar-login-activity](https://user-images.githubusercontent.com/57338033/157477270-6b07fdc6-435c-4e30-a1d7-88cb3236d120.png)
+
+![session5 2-edit-actionbar-message-activity](https://user-images.githubusercontent.com/57338033/157477278-5b06c779-9675-4273-ab73-c4942115264d.png)
+
+![session5 2-edit-actionbar-register-activity](https://user-images.githubusercontent.com/57338033/157477280-4528422a-d2db-4a7e-a9cd-4309285cc01f.png)
 
 
 ## Diff
@@ -219,8 +409,10 @@ package com.example.handsonchatapp
   
 <summary>前回との差分</summary>
   
-[diff](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/d246fc7371495600949b3b674787aab9e3fa7288)
+[diff](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/2ff59c7b049c72800d85a65b4b9f48ad68b100b5)
   
 </details>
 
-## Next
+## 最後に
+今回はこれにて終了です。お疲れさまでした。
+
