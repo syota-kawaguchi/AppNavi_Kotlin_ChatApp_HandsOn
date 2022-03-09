@@ -29,6 +29,8 @@ class RegisterActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        supportActionBar?.title = "登録"
+
         binding.registerButtonRegister.setOnClickListener {
               performRegister()
        }

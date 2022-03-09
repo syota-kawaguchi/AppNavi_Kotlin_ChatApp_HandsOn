@@ -21,6 +21,8 @@ class LoginActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        supportActionBar?.title = "ログイン"
+
         binding.loginButtonLogin.setOnClickListener {
             val email = binding.emailEdittextLogin.text.toString()
             val password = binding.passwordEdittextLogin.text.toString()
