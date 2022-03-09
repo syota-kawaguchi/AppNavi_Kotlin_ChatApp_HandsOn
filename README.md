@@ -219,7 +219,7 @@ package com.example.handsonchatapp
   
 <summary>前回との差分</summary>
   
-[diff]()
+[diff](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/d246fc7371495600949b3b674787aab9e3fa7288)
   
 </details>
 
