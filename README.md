@@ -9,10 +9,10 @@
 フォームやボタンの形・全体の色が違いますね、今回は色や形を設定していきます。<br>
 
 ## Statusbarの変更
-まずは`Statusbar`・`ActionBar`の色を変更します。<br>
-ちなみに`StatusBar`は`handsOnChatApp`と表示されている紫のバーで、`ActionBar`は充電や時間が記載されている少し濃い紫の部分のことを言います。<br>
+まずはステータスバー・アクションバーの色を変更します。<br>
+ちなみにアクションバーは`HandsOnChatAppTest`と表示されている紫のバーで、ステータスバーは充電や時間が記載されている少し濃い紫の部分のことを言います。<br>
 
-![session1-3-explain-bar](https://user-images.githubusercontent.com/57338033/156746591-0c2ada74-ccf8-468b-ada1-696f42e43a34.png)
+![Screenshot_1646887361](https://user-images.githubusercontent.com/57338033/157591947-f1eb3d35-10b4-400d-b6f8-054ba90db77b.png)
 
 - `res/values/colors.xml`を開きましょう
 - `colors.xml`では色を定義することができます。自分で定義することで使い回しやすくなります。
@@ -75,15 +75,16 @@
 ```
 
 - 続いて`activity_register.xml`を開きましょう
-- `Attributes`からユーザー名、メールアドレス、パスワードそれぞれの`background`に`@drawable/edittext_frame`を入力します。
-- これでFormの見た目を変えることができました。ただ、このままだとヒントが左によりすぎて少しかなり見にくいです。そこでPaddingを設定します。
+- ユーザー名の入力Formを選択し、`Attributes`の`background`に`@drawable/edittext_frame`を入力します。
+- この操作をメールアドレス・パスワードにも行います。
+- これでFormの見た目を変えることができました。しかしヒントが左によりすぎて少しかなり見にくいです。そこでPaddingを設定します。
 - `Attributes`からユーザー名、メールアドレス、パスワードそれぞれの`padding left`を`16dp`にします。
 - 以下にここまでの画面を表示します
 
 ![session1-3-apply-background-from](https://user-images.githubusercontent.com/57338033/156864257-6ae8f3ae-8392-4049-a3cb-af679fcd38c7.png)
 
 ## 課題
-- 同様の手順で`register_button`、`select_photo_button`という名前でxmlファイルを作成し、`register_button.xml`は`RegisterButton`に、`select_photo_button.xml`は`SelectPhotoButton`の`background`に適用しましょう。
+- 同様の手順で`register_button`、`select_photo_button`という名前で`res/drawable`直下にxmlファイルを作成し、`register_button.xml`は`RegisterButton`に、`select_photo_button.xml`は`SelectPhotoButton`の`background`に適用しましょう。
 - 以下に`register_button.xml`、`select_photo_button.xml`に記載する内容を載せます。
 
 - `register_button.xml`
@@ -109,7 +110,7 @@
     </item>
 </selector> 
 ```
-
+- `selectPhotoButton`をレイアウトから選択しようとしても前に画像があるため、できないです。そこで`Palette`の下にある`Component Tree`から選択するとうまくいきます。
 - 以下のような画面になっていればOKです。`RegisterButton`と`SelectPhotoButton`が丸くなっていれば正解です。
 
 ![session1-3-apply-background-select-photo-button](https://user-images.githubusercontent.com/57338033/156864775-6e423c98-09cd-4a82-a2f3-dacb0a4afd8b.png)
@@ -160,3 +161,4 @@ dependencies {
 
 
 ## Next
+[session1.4 処理を記述する](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session1.4)
