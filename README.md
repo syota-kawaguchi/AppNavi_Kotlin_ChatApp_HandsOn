@@ -23,10 +23,68 @@
 
 - 追加したら`Sync Now`をクリックしましょう
 
+<details>
+
+<summary>build.graldle(Module)の全体</summary>
+  
+ ```
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+android {
+    compileSdk 31
+
+    defaultConfig {
+        applicationId "com.example.handsonchatapptest"
+        minSdk 21
+        targetSdk 31
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    viewBinding {
+        enabled = true
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+}
+```
+  
+</details>
+
 ## 登録ボタンが押されたときの処理を追加する
 
 - `Sync Now`が完了したら`RegisterActivity`を開き、以下の緑色のハイライトを追加しましょう
-- `import`は`private lateinit ~`を先に記述することで自動で追加してくれます
+- 今回追加する`import`はプロジェクト固有のものですので、コピペするとエラーになります。
+- `import`は`private lateinit ~`を先に記述することで自動で追加してくれます。
 
 ```diff
    package com.example.handsonchatapp
@@ -54,15 +112,18 @@
 ```diff
   import...
   class RegisterActivity : AppCompatActivity() {
-        private lateinit var binding : ActivityRegisterBinding
-        private val TAG = "RegisterActivity"
-        override fun onCreate(savedInstanceState: Bundle?) {
-          super.onCreate(savedInstanceState)
-          setContentView(R.layout.activity_register)
-          binding = ActivityRegisterBinding.inflate(layoutInflater)
-          val view = binding.root
-          setContentView(view)
-+        binding.registerButtonRegister.setOnClickListener {
+
+      private lateinit var binding : ActivityRegisterBinding
+
++     private val TAG = "RegisterActivity"
++        
+      override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_register)
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
++       binding.registerButtonRegister.setOnClickListener {
 +          val email = binding.emailEdittextRegister.text.toString();
 +          val password = binding.passwordEdittextRegister.text.toString();
 +
@@ -71,7 +132,7 @@
 +       }
       }
   }
-  ```
+```
   
 - もし`Unresolved reference:Log`というエラーメッセージが出力されたときはLogのところにカーソルをあわせ、`Alt`＋`Enter`で`import`しましょう。
 - ここまで完了しましたら一度実行してみましょう。
@@ -89,7 +150,7 @@
 
 ## 「すでにアカウントをお持ちですか？」を押されたときの処理を追加する
 - このテキストにはタップされたときログイン画面へ遷移させる役割をもたせます。
-- とりあえずさきほどのようにこのテキストに`binding`でアクセスし、タップされたときの処理を追加します。
+- 'RegisterActivity'を開き、タップされたときの処理を追加します。
 
 ```diff
     ...略
@@ -125,7 +186,7 @@
 ![session1-4-create-new-activity-file](https://user-images.githubusercontent.com/57338033/156876004-e56282a9-afd7-4a64-b792-dcdfda3fcd5e.png)
 
 - `RegisterActivity`に戻り、以下の内容を追加します。
-- `unresolved reference:Intent`というエラーが出た際は先程と同様`Alt`+`Enster`でimportしましょう
+- `unresolved reference:Intent`というエラーが出た際は先程と同様`Alt`+`Enter`でimportしましょう
 
 ```diff
 ...略
@@ -149,7 +210,13 @@
     }
     ...略
 ```
-- インテントの説明
+- [Intent](https://developer.android.com/guide/components/intents-filters#kotlin)の説明を軽くしておきます。
+  - Intentは以下の処理をお願いするときに使うことができるメッセージングオブジェクトです。
+    - アクティビティの開始(画面の切り替え)
+    - サービスの開始(ユーザーに見えないところでアプリを実行し続けること(別のアプリ使っている間音楽を再生・ネットからダウンロードなど))
+    - ブロードキャストの配信(システム側からアプリにイベントを配信)
+
+
 - それでは実行してみましょう
 - 「すでにアカウントをお持ちですか？」をタップしたときに以下のように画面が変われば成功です。
 
@@ -189,7 +256,7 @@
 </manifest>
 ```
 
-- 追加できましたら実行しましょう。戻るボタンが`StatusBarに表示され、押すと戻ることができます。`
+- 追加できましたら実行しましょう。戻るボタンがアクションバーに表示され、押すと戻ることができます。
 
 ![session1-4-add-backButton](https://user-images.githubusercontent.com/57338033/156877655-c7c56272-1a4d-47e3-87f5-ad7adacd6abf.png)
 
@@ -218,7 +285,7 @@
        }
        
 +      binding.selectPhotoButtonRegister.setOnClickListener {
-+          Log.d(tag, "Try to show photo selector")
++          Log.d(TAG, "Try to show photo selector")
 +
 +          val intent = Intent(Intent.ACTION_PICK)
 +          intent.type = "image/*"
@@ -323,4 +390,5 @@
 [答え](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/commit/9965485463ce648bfe46cabd5cda73dc19cfb4ad)
 
 ## Next
-  
+
+[session2.1Firebaseを導入する](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session2.1)
