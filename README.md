@@ -65,8 +65,6 @@
 ```
 
 - ここまでできましたら一度実行し、`SIGN OUT`をタップしましょう。ログアウトし、登録画面に遷移しましたらOKです。
-- ここでコードの説明をします。
-- ～説明～
 
 ## RecyclerViewを配置する
 
@@ -78,8 +76,8 @@
 - `Palette`から`RecyclerView`をドラッグ＆ドロップし、以下のように設定します。Constraintの設定で`parent`と表記していますが、画面端に合わせることと同義です。
   - `layout_widht` : `0dp`
   - `layout_height` : `0dp`
-  - Constraint left : `parent`
-  - Constraint right : `parent`
+  - Constraint start : `parent`
+  - Constraint end : `parent`
   - Constraint top : `parent`
   - Constraint bottom : `parent`
   - `id` : `recyclerView_message`
@@ -102,7 +100,9 @@
 
 ![session3 2-set-imageview-constraint](https://user-images.githubusercontent.com/57338033/156960545-9398b07f-3b0c-4f41-9b69-475585906055.png)
 
-- `merginStart`を`16dp`に設定します。
+- `margin`を以下のようにに設定します。
+  - `Start` : `16dp`
+  - `Top` : `16dp`
 - `id`を`userimage_imageview_message`に設定します。
 
 - 続いて`textview`２つ追加します。以降一方を`username`、もう一方を`latestmessage`と呼びます。
@@ -199,73 +199,73 @@
 - `MessageActivity`を開きます。
 - 以下の内容を追加しましょう
 
-```kotlin
-package com.example.handsonchatapp
+```diff
+  package com.example.handsonchatapp
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.handsonchatapp.databinding.ActivityMessageBinding
-import com.google.firebase.auth.FirebaseAuth
+  import android.content.Intent
+  import androidx.appcompat.app.AppCompatActivity
+  import android.os.Bundle
+  import android.view.Menu
+  import android.view.MenuItem
++ import android.view.View
++ import androidx.recyclerview.widget.LinearLayoutManager
++ import androidx.recyclerview.widget.RecyclerView
++ import com.example.handsonchatapp.databinding.ActivityMessageBinding
+  import com.google.firebase.auth.FirebaseAuth
 
-class MessageActivity : AppCompatActivity() {
+  class MessageActivity : AppCompatActivity() {
 
-    private val TAG = "Message Activity"
++     private val TAG = "Message Activity"
++
++     private lateinit var binding : ActivityMessageBinding
++
++     var recyclerView: RecyclerView? = null
++
+      override fun onCreate(savedInstanceState: Bundle?) {
+          super.onCreate(savedInstanceState)
 
-    private lateinit var binding : ActivityMessageBinding
++         binding = ActivityMessageBinding.inflate(layoutInflater)
++         val view = binding.root
++         setContentView(view)
++
++         recyclerView = binding.recyclerViewMessage
++
++         val messageItems = mutableListOf<MessageItem>()
++         messageItems.add(MessageItem("username", "Hello world", ""))
++         messageItems.add(MessageItem("username", "Hello world", ""))
++         messageItems.add(MessageItem("username", "Hello world", ""))
++         messageItems.add(MessageItem("username", "Hello world", ""))
++
++         recyclerView?.apply {
++             setHasFixedSize(true)
++             layoutManager = LinearLayoutManager(context)
++             adapter = MessageAdapter(
++                 messageItems,
++                 object : MessageAdapter.ListListener {
++                     override fun onClickItem(tappedView: View, messageItem: MessageItem) {
++                     }
++                 }
++             )
++         }
++
++     }
 
-    var recyclerView: RecyclerView? = null
+      override fun onOptionsItemSelected(item: MenuItem): Boolean {
+          if (item.itemId == R.id.menu_sign_out){
+              FirebaseAuth.getInstance().signOut()
+              val intent = Intent(this, RegisterActivity::class.java)
+              intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+              startActivity(intent)
+          }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+          return super.onOptionsItemSelected(item)
+      }
 
-        binding = ActivityMessageBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
-
-        recyclerView = binding.recyclerViewMessage
-
-        val messageItems = mutableListOf<MessageItem>()
-        messageItems.add(MessageItem("username", "Hello world", ""))
-        messageItems.add(MessageItem("username", "Hello world", ""))
-        messageItems.add(MessageItem("username", "Hello world", ""))
-        messageItems.add(MessageItem("username", "Hello world", ""))
-
-        recyclerView?.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            adapter = MessageAdapter(
-                messageItems,
-                object : MessageAdapter.ListListener {
-                    override fun onClickItem(tappedView: View, messageItem: MessageItem) {
-                    }
-                }
-            )
-        }
-
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_sign_out){
-            FirebaseAuth.getInstance().signOut()
-            val intent = Intent(this, RegisterActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.nav_menu, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-}
+      override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+          menuInflater.inflate(R.menu.nav_menu, menu)
+          return super.onCreateOptionsMenu(menu)
+      }
+  }
 ```
 
 - 追加できましたら実行してみましょう。
