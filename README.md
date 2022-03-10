@@ -3,7 +3,9 @@
 ## 3.1　画面遷移の実装
 
 今回から以下のようなユーザー一覧画面を作成していきます。<br>
-(画像)<br>
+
+![session3 3-show-userImage-message-activitypng](https://user-images.githubusercontent.com/57338033/157044187-ba992d06-872c-4878-b1e8-3e2e23feb013.png)
+
 まずは画面を追加し、この画面にたどり着けるようにします。
 
 ## Activityを追加する
@@ -110,3 +112,4 @@
 </details>
 
 ## Next
+[Session3.2メッセージ画面の作成](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/blob/session3.2/README.md)
