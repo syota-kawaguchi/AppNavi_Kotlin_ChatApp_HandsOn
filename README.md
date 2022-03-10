@@ -137,3 +137,4 @@
 </details>
 
 ## Next
+[Session2.2 アプリに認証機能とログイン機能を追加する](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session2.2)
