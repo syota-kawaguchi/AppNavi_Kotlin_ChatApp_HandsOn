@@ -148,10 +148,6 @@
 +                 }
 +            }
 +            .addOnFailureListener {}
-+
-+         val intent = Intent(this, MessageActivity::class.java)
-+         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-+         startActivity(intent)
 +     }
 +
 +     private fun saveUserToFirebaseDatabase(profileImageUrl: String) {
@@ -390,14 +386,14 @@
           itemBinding.usernameTextviewMessage.text = item.username
           itemBinding.latestmessageTextviewMessage.text = item.message
           val userImage = itemBinding.userimageImageviewMessage
-+         Picasso.get().load(item.progileImageUrl).into(userImage)
++         Picasso.get().load(item.profileImageUrl).into(userImage)
           itemBinding.root.setOnClickListener {
               listener.onClickItem(it, item)
           }
       }
   }
 
-  class MessageItem(val username: String, val message: String, val progileImageUrl: String) {
+  class MessageItem(val username: String, val message: String, val profileImageUrl: String) {
       constructor() : this("", "", "")
   }
 ```
