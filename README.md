@@ -106,6 +106,7 @@
     }
 ```
 
+- コードの中に出てきた[Toast](https://developer.android.com/guide/topics/ui/notifiers/toasts?hl=ja)とは操作に対する簡単なフィードバックを小さなホップアップに表示する処理です。
 - ここまでのRegisterActivityの全体を以下に記載します。
 
 <details>
@@ -321,7 +322,7 @@
 ```
 
 - 入力できましたら実行しましょう。
-- LOGの検索で`Login`と入力後Formに先程ユーザー登録した情報を入力し、ログインボタンを押すと'success login'と出力されれば問題ないです。
+- LOGの検索で`Login`と入力後、Formに先程ユーザー登録した情報を入力し、ログインボタンを押すと'success login'と出力されれば問題ないです。
 <br>
 このSessionではFirebaseを導入し、ユーザー登録機能・ログイン機能を追加しました。今後ユーザー登録後またはログイン後にユーザー一覧画面へ遷移するよう実装します。<br>
 次のセクションではユーザー一覧画面を作成していきます。
@@ -338,3 +339,4 @@
 </details>
 
 ## Next
+[Session3.1 画面遷移の実装](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/blob/session3.1/README.md)
