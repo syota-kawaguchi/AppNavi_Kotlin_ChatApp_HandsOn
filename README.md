@@ -12,7 +12,7 @@
 ## セッション
 
 ### 1.0 準備
-[session1.0]準備
+[session1.0](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session1-prepare)
 
 ### 1.1 入力フォームを作成する
 [session1.1](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session1.1)
