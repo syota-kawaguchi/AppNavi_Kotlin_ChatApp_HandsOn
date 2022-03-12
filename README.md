@@ -69,7 +69,7 @@
   package com.example.handsonchatapp
 
 + import android.os.Parcelable
-  import kotlinx.android.parcel.Parcelize
++ import kotlinx.android.parcel.Parcelize
 
 + @Parcelize
 - class User(val uid: String, val username: String, val profileImageUrl: String){
@@ -85,7 +85,7 @@
   
   import ...略
 +
-+ val USER_KEY = "USER_KEY"
++ const val USER_KEY = "USER_KEY"
 
   class MessageActivity : AppCompatActivity() {
 
@@ -190,7 +190,7 @@ class ChatLogActivity : AppCompatActivity() {
 
 - 追加できましたら実行してみましょう。以下の画面の用になっていればOKです。
 
-![session4 3-messsage-to-chat-log](https://user-images.githubusercontent.com/57338033/157225647-bedf6078-c8de-43ec-b09a-dc8ad11baa4f.png)
+![session4 3-messsage-to-chat-log](https://user-images.githubusercontent.com/50994088/158007881-8dc779d0-77bd-4f34-8be2-8a9a596eca87.png)
 
 ## 送信機能の追加
 
@@ -242,7 +242,7 @@ class ChatLogActivity : AppCompatActivity() {
 -           adapter = ChatLogAdapter(
 -               chatLogs,
 -               object : AdapterUtil.ListListener<ChatLogItem> {
--                   override fun onClickItem(tappedView: View, chatLogItem: ChatLogItem) {}
+-                   override fun onClickItem(tappedView: View, messageItem: ChatLogItem) {}
 -               }
 -           )
 -       }
@@ -255,7 +255,7 @@ class ChatLogActivity : AppCompatActivity() {
 +           adapter = ChatLogAdapter(
 +               list,
 +               object : AdapterUtil.ListListener<ChatLogItem> {
-+                   override fun onClickItem(tappedView: View, chatLogItem: ChatLogItem) {}
++                   override fun onClickItem(tappedView: View, messageItem: ChatLogItem) {}
 +               }
 +           )
 +       }
@@ -422,11 +422,11 @@ class ChatLogActivity : AppCompatActivity() {
 
 - データベースにメッセージを送信し、データベースからメッセージを取得して画面に表示することはできました。
 - しかし、ユーザーごとにメッセージが分けられていません。最後にユーザーごとにメッセージの保存・取得を行うよう実装します。
-- FirebaseのRealtime Databseを開き、メッセージを削除します。
+- FirebaseのRealtime Databseを開き、メッセージを削除します。"message"にマウスカーソルを合わせると表示される×をクリックし、表示されたダイアログ右下の"削除"を押すと削除されます。
 
 ![image](https://user-images.githubusercontent.com/57338033/157286444-61fe0052-c75d-4bf1-9fe4-4b666bcfb2be.png)
 
-- ChatLogActivityを開き以下のように編集します。
+- `ChatLogActivity`を開き以下のように編集します。
 
 ```diff
     ...略
@@ -448,7 +448,8 @@ class ChatLogActivity : AppCompatActivity() {
 -       ref.setValue(chatMessage)
 +       fromRef.setValue(chatMessage)
             .addOnSuccessListener {
-                Log.d(TAG, "Saved our chat message: ${ref.key}")
+-               Log.d(TAG, "Saved our chat message: ${ref.key}")
++               Log.d(TAG, "Saved our chat message: ${fromRef.key}")
             }
 +       toRef.setValue(chatMessage)
 +           .addOnSuccessListener {
@@ -509,3 +510,5 @@ class ChatLogActivity : AppCompatActivity() {
 </details>
 
 ## Next
+
+[session5.1 メッセージ画面に最新のメッセージを表示する](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session5.1)
