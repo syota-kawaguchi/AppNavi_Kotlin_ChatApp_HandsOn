@@ -45,7 +45,7 @@
 [session4.1](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session4.1)
 
 ### 4.2 チャットのレイアウト作成
-[session4.2](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/blob/session4.2)
+[session4.2](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session4.2)
 
 ### 4.3 チャット機能の実装
 [session4.3](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session4.3)
