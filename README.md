@@ -104,7 +104,7 @@
 </androidx.constraintlayout.widget.ConstraintLayout>
 ```
 
-![session4 2-chat-to-row-layout](https://user-images.githubusercontent.com/57338033/157144423-89899841-b14c-42fa-884c-81feb8cb6073.png)
+![session4 2-chat-to-row-layout](https://user-images.githubusercontent.com/50994088/158015105-9658d333-5d3c-4152-8c91-673fda0d107a.png)
 
 - 続いてAdapterを実装します。
 - Adapterを実装するにあたって`MessageAdapter`と重複する処理があるので、`New` → `Kotlin Class/File`から`AdapterUtil`というファイルを作成し、以下のように編集します。
@@ -278,9 +278,7 @@
 
 - ここまでできましたら実行してみましょう。以下のような画面になればOKです。
 
-![session4 2-chat-log-result](https://user-images.githubusercontent.com/57338033/157149865-4beab181-4979-4142-8d89-167aac89aee9.png)
-
-
+![session4 2-chat-log-result](https://user-images.githubusercontent.com/50994088/158016087-62fd171c-5410-46b6-8376-65df32f2b2d3.png)
 
 
 ## Diff
