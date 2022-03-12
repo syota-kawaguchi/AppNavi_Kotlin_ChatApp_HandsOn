@@ -73,7 +73,7 @@
 
 ## アイコンにフレームを追加する。
 - 現状アイコンの背景が白だと後ろと同化してしまうので、あまり目立たない程度に枠を設定します。
-- `message_row.xml`を開き、以下の行を追加します。
+- `res/layout/message_row.xml`を開き、以下の行を追加します。
 
 ```diff
   <?xml version="1.0" encoding="utf-8"?>
@@ -125,7 +125,7 @@
   </androidx.constraintlayout.widget.ConstraintLayout>
 ```
 
-- 同様に`chat_from_row.xml`を以下の容易編集します。
+- 同様に`res/layout/chat_from_row.xml`を以下のように編集します。
 
 ```diff
   <?xml version="1.0" encoding="utf-8"?>
@@ -162,7 +162,7 @@
 </androidx.constraintlayout.widget.ConstraintLayout>
 ```
 
-- `chat_to_row.xml`を以下のように編集します。
+- `res/layout/chat_to_row.xml`を以下のように編集します。
 
 ```diff
   <?xml version="1.0" encoding="utf-8"?>
@@ -320,7 +320,7 @@
 
 - `LoginActivity`を開き、以下のように編集します・
 
-```
+```diff
   package com.example.handsonchatapp
 
   import ...
