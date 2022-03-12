@@ -14,7 +14,7 @@
   val fromRef = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
 ```
 
-- `.push()`とついているため、`setValue()`をするとデータが追加されていきます。
+- `.push()`とついているため、`setValue()`を実行する度に新たなデータが追加されていきます。
 - 今回は追加されるのではなく上書きで保存するように実装します。
 - データを追加するように保存すると取得する際、追加されたデータの数だけ通信量が増えます。
 - そのため、上書きでも保存することで通信量を少なく、一定に保つ事ができます。
@@ -87,7 +87,7 @@ import ...
 
 
 ## メッセージ画面に最新のメッセージを表示する
-- 先程保存したデータベースを利用してメッセージ画面に最新のメッセージを評しさせます。
+- 先程保存したデータベースを利用してメッセージ画面に最新のメッセージを表示させます。
 - `build.gradle(Module)`を開き、`dependencies`の中に以下の行を追加します。
 - [coroutines](https://github.com/Kotlin/kotlinx.coroutines)・[lifecycle](https://developer.android.com/jetpack/androidx/releases/lifecycle?hl=ja)バージョンは2022年3月時点のものです。
 
@@ -224,3 +224,5 @@ package com.example.handsonchatapp
 </details>
 
 ## Next
+
+[session5.2 手直し](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session5.2)
