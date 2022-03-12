@@ -15,7 +15,7 @@ session4からチャット画面・機能を作成していきます。
 
 
 ## MessageActivityと行き来する
-- `LatestMessageActivity`を開き、以下を追加します。
+- `MessageActivity`を開き、以下を追加します。
 
 ```diff
 ...略
@@ -39,7 +39,7 @@ session4からチャット画面・機能を作成していきます。
 
 - `AndroidManifest.xml`を開き、以下の内容を追加します。`ChatLogActivity`のactivity属性は`ChatLogActivity`を生成した際に自動で入力されています。
 
-```
+```diff
   <?xml version="1.0" encoding="utf-8"?>
   <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.example.handsonchatapp">
@@ -53,20 +53,21 @@ session4からチャット画面・機能を作成していきます。
           android:theme="@style/Theme.HandsOnChatApp">
           <activity
               android:name=".ChatLogActivity"
-              android:exported="false" >
-              <meta-data
-                  android:name="android.support.PARENT_ACTIVITY"
-                  android:value=".MessageActivity" />
-          </activity>
+-              android:exported="false" />
++              android:exported="false" >
++              <meta-data
++                  android:name="android.support.PARENT_ACTIVITY"
++                  android:value=".MessageActivity" />
++          </activity>
           <activity
               android:name=".MessageActivity"
               android:exported="false" />
           <activity
               android:name=".LoginActivity"
-+             android:exported="false">
-+             <meta-data
-+                 android:name="android.support.PARENT_ACTIVITY"
-+                 android:value=".RegisterActivity" />
+              android:exported="false">
+              <meta-data
+                  android:name="android.support.PARENT_ACTIVITY"
+                  android:value=".RegisterActivity" />
           </activity>
           <activity
               android:name=".RegisterActivity"
@@ -106,6 +107,7 @@ session4からチャット画面・機能を作成していきます。
   </selector>
 ```
 - 続いて`ChatLogActivity`のレイアウトを作成します。
+- `res/layout/activity_chat_log.xml`を開きます。
 - `Palette`から`Button`を画面に配置し、以下のように設定します。
   - `id` : `send_button_chatlog`
   - `layout_height` : `50dp`
@@ -116,7 +118,7 @@ session4からチャット画面・機能を作成していきます。
   - constraint
     - bottom : 画面下端
     - right : 画面右端
-- `Palette`から`PlaneText`を画面に配置し、以下のように設定します。
+- `Palette`から`PlainText`を画面に配置し、以下のように設定します。
   - `id` : `edittext_chatlog`
   - `layout_width` : `0dp`
   - `layout_height` : `50dp`
@@ -160,3 +162,5 @@ session4からチャット画面・機能を作成していきます。
 </details>
 
 ## Next
+
+[session4.2 チャットのレイアウト作成](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session4.2)
