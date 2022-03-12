@@ -190,7 +190,7 @@ class ChatLogActivity : AppCompatActivity() {
 
 - 追加できましたら実行してみましょう。以下の画面の用になっていればOKです。
 
-![session4 3-messsage-to-chat-log](https://user-images.githubusercontent.com/57338033/157225647-bedf6078-c8de-43ec-b09a-dc8ad11baa4f.png)
+![session4 3-messsage-to-chat-log](https://user-images.githubusercontent.com/50994088/158007881-8dc779d0-77bd-4f34-8be2-8a9a596eca87.png)
 
 ## 送信機能の追加
 
