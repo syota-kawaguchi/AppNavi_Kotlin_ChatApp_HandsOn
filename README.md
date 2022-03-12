@@ -83,4 +83,4 @@
 
 ## Next
 
-[session1.3 UIの形や色を変更する](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session1.3)
+[session1.3 UIの形や色を変更する](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/compare/session1.1...session1.2)
