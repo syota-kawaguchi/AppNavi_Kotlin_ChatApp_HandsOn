@@ -162,3 +162,5 @@ session4からチャット画面・機能を作成していきます。
 </details>
 
 ## Next
+
+[session4.2 チャットのレイアウト作成](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session4.2)
