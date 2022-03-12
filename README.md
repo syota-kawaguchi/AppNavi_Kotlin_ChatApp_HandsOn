@@ -52,8 +52,9 @@
     <color name="chat_to_row_background">#E7E6E9</color>
 ```
 
-- drawableフォルダーの`chat_log_from_background`をコピペします。ペーストの際、ファイル名を求められるので、`chat_log_to_background`とします。
-- `chat_log_to_background`を以下のように編集します。
+<!-- - drawableフォルダーの`chat_log_from_background`をコピペします。`res/drawable/chat_log_from_background.xml`の上で右クリックし、メニューで`Refactor` -> `Copy File...`をクリックします。ダイアログが表示されるので、"New name:"の欄に`chat_log_to_background.xml`と入力します。 -->
+- 新たなdrawableファイルを作成します。`new` → `Drawable Resource File`で`chat_log_to_background`という名前でファイルを作成しましょう。
+- 追加できましたら以下のように編集します。
 
 ```xml
   <?xml version="1.0" encoding="utf-8"?>
@@ -67,8 +68,8 @@
   </selector>
 ```
 
-- layoutファイルの`chat_from_row`も同様にコピペしましょう。ファイル名は`chat_to_row`とします。
-- `chat_to_row`を以下のように設定します。
+- 新たなlayoutファイルを作成します。`new` → `Layout Resource File`で`chat_to_row`という名前でファイルを作成しましょう。
+- 追加できましたら、"Design"から"Code"に切り替え、以下のように編集します。
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -103,29 +104,10 @@
 </androidx.constraintlayout.widget.ConstraintLayout>
 ```
 
-- 一度水平方向のconstraintの関係を削除し、画像の水平方向のconstraintを設定後、テキストのconstraintを設定し、最後にmarginを設定してあげるといい感じになります。
-
 ![session4 2-chat-to-row-layout](https://user-images.githubusercontent.com/57338033/157144423-89899841-b14c-42fa-884c-81feb8cb6073.png)
 
 - 続いてAdapterを実装します。
 - Adapterを実装するにあたって`MessageAdapter`と重複する処理があるので、`New` → `Kotlin Class/File`から`AdapterUtil`というファイルを作成し、以下のように編集します。
-
-```kotlin
-  package com.example.handsonchatapp
-
-  import android.view.View
-
-  class AdapterUtil {
-      interface ListListener<T> {
-          fun onClickItem(tappedView: View, messageItem: T)
-      }
-  }
-```
-
-続いて`MessageAdapter`も以下のように編集します。
-
-- `New` → `Kotlin Class/File`から`AdapterUtil`という名前でファイルを作成します。
-- 以下のように編集します。
 
 ```kotlin
   package com.example.handsonchatapp
@@ -223,7 +205,7 @@
           holder.itemView.findViewById<TextView>(R.id.textview_chat_log).text = list[position].message
           val url = list[position].profileImageUrl
           val targetImageView = holder.itemView.findViewById<ImageView>(R.id.imageView_chat_log)
-          if (url != null && url != "") {
+          if (url != "") {
               Picasso.get().load(url).into(targetImageView)
           }
           holder.itemView.setOnClickListener {
@@ -286,7 +268,7 @@
               adapter = ChatLogAdapter(
                   chatLogs,
                   object : AdapterUtil.ListListener<ChatLogItem> {
-                      override fun onClickItem(tappedView: View, chatLogItem: ChatLogItem) {}
+                      override fun onClickItem(tappedView: View, messageItem: ChatLogItem) {}
                   }
               )
           }
@@ -313,4 +295,4 @@
 
 ## Next
 
-4.3
+[session4.3 チャット機能の実装](https://github.com/syota-kawaguchi/AppNavi_Kotlin_ChatApp_HandsOn/tree/session4.2)
